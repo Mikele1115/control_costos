@@ -1,0 +1,92 @@
+es:
+  # rails-i18n trae el castellano de Espana: moneda en euros y simbolo
+  # detras del numero. Lo adaptamos.
+  number:
+    currency:
+      format:
+        unit: "$"
+        format: "%u%n"
+        delimiter: "."
+        separator: ","
+        precision: 2
+
+  activerecord:
+    models:
+      insumo:
+        one: Insumo
+        other: Insumos
+      precio_insumo:
+        one: Precio
+        other: Precios
+      receta:
+        one: Receta
+        other: Recetas
+      ingrediente:
+        one: Ingrediente
+        other: Ingredientes
+
+    attributes:
+      insumo:
+        nombre: Nombre
+        unidad_base: Unidad base
+        merma_porcentaje: Merma
+        precio_insumos: precios cargados
+      precio_insumo:
+        insumo: Insumo
+        precio_compra: Precio de compra
+        cantidad_compra: Cantidad comprada
+        unidad_compra: Unidad de compra
+        costo_por_unidad_base: Costo por unidad base
+        vigente_desde: Vigente desde
+      receta:
+        nombre: Nombre
+        tipo: Tipo
+        porciones: Porciones
+        precio_venta: Precio de venta
+        rendimiento_cantidad: Rendimiento
+        rendimiento_unidad: Unidad de rendimiento
+        ingredientes: ingredientes
+        usos: otras recetas
+      ingrediente:
+        receta: Receta
+        insumable: Ingrediente
+        insumable_id: Ingrediente
+        cantidad: Cantidad
+        unidad: Unidad
+
+    errors:
+      messages:
+        # Formulacion entre parentesis: encaja con cualquier texto sin
+        # problemas de concordancia de genero ni numero.
+        restrict_dependent_destroy:
+          has_one: "No se puede eliminar: en uso (%{record})"
+          has_many: "No se puede eliminar: en uso (%{record})"
+
+      models:
+        insumo:
+          attributes:
+            nombre:
+              taken: "ya está en uso"
+        receta:
+          attributes:
+            nombre:
+              taken: "ya está en uso"
+
+  # Etiquetas propias de la aplicacion, para las vistas
+  costeo:
+    tipos:
+      plato: Plato
+      preparacion: Preparación
+    unidades:
+      g: gramos
+      kg: kilogramos
+      ml: mililitros
+      l: litros
+      unidad: unidades
+      docena: docenas
+    indicadores:
+      costo_total: Costo total
+      costo_por_porcion: Costo por porción
+      food_cost: Food cost
+      margen_bruto: Margen bruto
+      precio_sugerido: Precio sugerido

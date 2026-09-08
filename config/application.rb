@@ -16,12 +16,15 @@ module ControlCostos
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
-    # Configuration for the application, engines, and railties goes here.
-    #
-    # These settings can be overridden in specific environments using the files
-    # in config/environments, which are processed later.
-    #
-    # config.time_zone = "Central Time (US & Canada)"
-    # config.eager_load_paths << Rails.root.join("extras")
+    # --- Idioma ---------------------------------------------------
+    config.i18n.default_locale = :es
+    config.i18n.available_locales = [:es, :en]
+    # Permite organizar las traducciones en subdirectorios
+    config.i18n.load_path += Dir[Rails.root.join("config/locales/**/*.{rb,yml}")]
+
+    # --- Zona horaria ---------------------------------------------
+    # Tu sistema esta en UTC-3. Ajusta la ciudad si no es la tuya:
+    # "Buenos Aires", "Montevideo", "Santiago"...
+    config.time_zone = "Buenos Aires"
   end
 end
