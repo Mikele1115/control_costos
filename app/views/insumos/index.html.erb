@@ -1,0 +1,54 @@
+<% content_for :title, "Insumos" %>
+
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Insumos</h1>
+    <p class="mt-1 text-sm text-slate-500"><%= pluralize(@insumos.size, "insumo") %></p>
+  </div>
+  <%= link_to "Nuevo insumo", new_insumo_path,
+        class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
+</div>
+
+<div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+  <table class="min-w-full divide-y divide-slate-200 text-sm">
+    <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+      <tr>
+        <th class="px-4 py-3 text-left font-medium">Nombre</th>
+        <th class="px-4 py-3 text-left font-medium">Unidad base</th>
+        <th class="px-4 py-3 text-right font-medium">Merma</th>
+        <th class="px-4 py-3 text-right font-medium">Costo actual</th>
+        <th class="px-4 py-3 text-right font-medium">Con merma</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      <% @insumos.each do |insumo| %>
+        <% unitario = insumo.costo_unitario %>
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3 font-medium text-slate-900">
+            <%= link_to insumo.nombre, insumo, class: "hover:underline" %>
+          </td>
+          <td class="px-4 py-3 text-slate-500"><%= insumo.unidad_base %></td>
+          <td class="px-4 py-3 text-right">
+            <% if insumo.merma_porcentaje.positive? %>
+              <span class="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900">
+                <%= cantidad(insumo.merma_porcentaje) %> %
+              </span>
+            <% else %>
+              <span class="text-slate-300">—</span>
+            <% end %>
+          </td>
+          <td class="px-4 py-3 text-right">
+            <% if unitario %>
+              <%= moneda(unitario) %> <span class="text-xs text-slate-400">/ <%= insumo.unidad_base %></span>
+            <% else %>
+              <span class="text-xs text-amber-700">sin precio</span>
+            <% end %>
+          </td>
+          <td class="px-4 py-3 text-right text-slate-500">
+            <%= unitario ? moneda(unitario * insumo.factor_merma) : "—" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

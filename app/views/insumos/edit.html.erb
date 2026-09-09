@@ -1,0 +1,7 @@
+<% content_for :title, "Editar insumo" %>
+<div class="mx-auto max-w-lg">
+  <h1 class="mb-6 text-2xl font-bold text-slate-900">Editar <%= @insumo.nombre %></h1>
+  <div class="rounded-lg border border-slate-200 bg-white p-6">
+    <%= render "form", insumo: @insumo %>
+  </div>
+</div>

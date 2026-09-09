@@ -1,0 +1,82 @@
+<% content_for :title, @insumo.nombre %>
+
+<div class="mb-6 flex flex-wrap items-start justify-between gap-4">
+  <div>
+    <%= link_to "← Insumos", insumos_path, class: "text-sm text-slate-500 hover:underline" %>
+    <h1 class="mt-1 text-2xl font-bold text-slate-900"><%= @insumo.nombre %></h1>
+    <p class="mt-1 text-sm text-slate-500">
+      Se mide en <%= t("costeo.unidades.#{@insumo.unidad_base}") %>
+      · admite <%= @insumo.unidades_permitidas.join(", ") %>
+    </p>
+  </div>
+  <div class="flex gap-2">
+    <%= link_to "Editar", edit_insumo_path(@insumo),
+          class: "rounded-md border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50" %>
+    <%= button_to "Eliminar", @insumo, method: :delete,
+          form: { data: { turbo_confirm: "¿Eliminar #{@insumo.nombre}?" } },
+          class: "cursor-pointer rounded-md border border-rose-300 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-50" %>
+  </div>
+</div>
+
+<div class="mb-8 grid gap-4 sm:grid-cols-3">
+  <div class="rounded-lg border border-slate-200 bg-white p-4">
+    <p class="text-xs uppercase tracking-wide text-slate-500">Costo actual</p>
+    <p class="mt-1 text-xl font-semibold text-slate-900">
+      <%= moneda(@insumo.costo_unitario) %>
+      <span class="text-sm font-normal text-slate-400">/ <%= @insumo.unidad_base %></span>
+    </p>
+  </div>
+  <div class="rounded-lg border border-slate-200 bg-white p-4">
+    <p class="text-xs uppercase tracking-wide text-slate-500">Merma</p>
+    <p class="mt-1 text-xl font-semibold text-slate-900"><%= cantidad(@insumo.merma_porcentaje) %> %</p>
+    <p class="text-xs text-slate-500">factor ×<%= cantidad(@insumo.factor_merma, 4) %></p>
+  </div>
+  <div class="rounded-lg border border-slate-200 bg-white p-4">
+    <p class="text-xs uppercase tracking-wide text-slate-500">Costo real (con merma)</p>
+    <p class="mt-1 text-xl font-semibold text-slate-900">
+      <%= @insumo.costo_unitario ? moneda(@insumo.costo_unitario * @insumo.factor_merma) : "—" %>
+    </p>
+  </div>
+</div>
+
+<h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+  Historial de precios
+</h2>
+
+<% if @precios.any? %>
+  <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+        <tr>
+          <th class="px-4 py-3 text-left font-medium">Vigente desde</th>
+          <th class="px-4 py-3 text-right font-medium">Compra</th>
+          <th class="px-4 py-3 text-right font-medium">Cantidad</th>
+          <th class="px-4 py-3 text-right font-medium">Costo unitario</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <% @precios.each_with_index do |precio, i| %>
+          <tr class="<%= "bg-emerald-50/50" if i.zero? %>">
+            <td class="px-4 py-3">
+              <%= l(precio.vigente_desde) %>
+              <% if i.zero? %>
+                <span class="ml-2 rounded bg-emerald-100 px-1.5 py-0.5 text-xs text-emerald-800">vigente</span>
+              <% end %>
+            </td>
+            <td class="px-4 py-3 text-right"><%= moneda(precio.precio_compra) %></td>
+            <td class="px-4 py-3 text-right text-slate-500">
+              <%= cantidad(precio.cantidad_compra) %> <%= precio.unidad_compra %>
+            </td>
+            <td class="px-4 py-3 text-right font-medium">
+              <%= moneda(precio.costo_por_unidad_base) %> / <%= @insumo.unidad_base %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+    Sin precios cargados: este insumo no se puede costear todavía.
+  </div>
+<% end %>

@@ -1,0 +1,47 @@
+<% clases_campo = "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900" %>
+
+<%= form_with model: insumo, class: "space-y-5" do |f| %>
+  <% if insumo.errors.any? %>
+    <div class="rounded-lg border border-rose-200 bg-rose-50 p-4">
+      <p class="text-sm font-semibold text-rose-900">
+        No se pudo guardar (<%= pluralize(insumo.errors.count, "error") %>)
+      </p>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-rose-800">
+        <% insumo.errors.full_messages.each do |mensaje| %>
+          <li><%= mensaje %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :nombre, class: "block text-sm font-medium text-slate-700" %>
+    <%= f.text_field :nombre, class: clases_campo, autofocus: true %>
+  </div>
+
+  <div>
+    <%= f.label :unidad_base, class: "block text-sm font-medium text-slate-700" %>
+    <%= f.select :unidad_base,
+          Insumo::UNIDADES_BASE.map { |u| [t("costeo.unidades.#{u}"), u] },
+          { include_blank: "Elegir..." }, class: clases_campo %>
+    <p class="mt-1 text-xs text-slate-500">
+      La unidad minima en la que se mide. Se compra en kg pero se cocina en g:
+      elegi <strong>gramos</strong>. No se puede cambiar sin recalcular sus precios.
+    </p>
+  </div>
+
+  <div>
+    <%= f.label :merma_porcentaje, "Merma (%)", class: "block text-sm font-medium text-slate-700" %>
+    <%= f.number_field :merma_porcentaje, step: "0.01", min: 0, max: 99.99, class: clases_campo %>
+    <p class="mt-1 text-xs text-slate-500">
+      Porcentaje que se pierde al limpiar. Si de 1 kg de cebolla aprovechas
+      800 g, la merma es <strong>20</strong>. Deja 0 si no hay desperdicio.
+    </p>
+  </div>
+
+  <div class="flex items-center gap-3 pt-2">
+    <%= f.submit class: "cursor-pointer rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
+    <%= link_to "Cancelar", insumo.persisted? ? insumo : insumos_path,
+          class: "text-sm text-slate-500 hover:underline" %>
+  </div>
+<% end %>
