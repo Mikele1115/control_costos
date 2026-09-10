@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_10_050004) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_10_051822) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -33,9 +33,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_10_050004) do
     t.datetime "created_at", null: false
     t.decimal "merma_porcentaje", precision: 5, scale: 2, default: "0.0", null: false
     t.string "nombre", null: false
+    t.bigint "proveedor_id"
     t.string "unidad_base", null: false
     t.datetime "updated_at", null: false
     t.index ["nombre"], name: "index_insumos_on_nombre", unique: true
+    t.index ["proveedor_id"], name: "index_insumos_on_proveedor_id"
     t.check_constraint "merma_porcentaje >= 0::numeric AND merma_porcentaje < 100::numeric", name: "merma_en_rango"
     t.check_constraint "unidad_base::text = ANY (ARRAY['g'::character varying, 'ml'::character varying, 'unidad'::character varying]::text[])", name: "unidad_base_valida"
   end
@@ -54,6 +56,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_10_050004) do
     t.check_constraint "cantidad_compra > 0::numeric", name: "cantidad_positiva"
     t.check_constraint "costo_por_unidad_base >= 0::numeric", name: "costo_no_negativo"
     t.check_constraint "precio_compra >= 0::numeric", name: "precio_no_negativo"
+  end
+
+  create_table "proveedores", force: :cascade do |t|
+    t.string "contacto"
+    t.datetime "created_at", null: false
+    t.string "nombre", null: false
+    t.string "telefono"
+    t.datetime "updated_at", null: false
+    t.index ["nombre"], name: "index_proveedores_on_nombre", unique: true
   end
 
   create_table "recetas", force: :cascade do |t|
@@ -75,5 +86,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_10_050004) do
   end
 
   add_foreign_key "ingredientes", "recetas"
+  add_foreign_key "insumos", "proveedores", on_delete: :nullify
   add_foreign_key "precio_insumos", "insumos"
 end

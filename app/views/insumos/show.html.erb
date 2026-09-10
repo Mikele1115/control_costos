@@ -5,7 +5,7 @@
     <%= link_to "← Insumos", insumos_path, class: "text-sm text-slate-500 hover:underline" %>
     <h1 class="mt-1 text-2xl font-bold text-slate-900"><%= @insumo.nombre %></h1>
     <p class="mt-1 text-sm text-slate-500">
-      Se mide en <%= t("costeo.unidades.#{@insumo.unidad_base}") %>
+      <% if @insumo.proveedor %><%= link_to @insumo.proveedor.nombre, @insumo.proveedor, class: "font-medium text-slate-700 hover:underline" %> · <% end %>Se mide en <%= t("costeo.unidades.#{@insumo.unidad_base}") %>
       · admite <%= @insumo.unidades_permitidas.join(", ") %>
     </p>
   </div>

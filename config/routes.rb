@@ -3,6 +3,8 @@ Rails.application.routes.draw do
 
   get "margenes", to: "margenes#index"
 
+  resources :proveedores
+
   resources :insumos do
     resources :precio_insumos, only: %i[new create destroy], path: "precios"
   end

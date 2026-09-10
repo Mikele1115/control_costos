@@ -2,7 +2,8 @@ class InsumosController < ApplicationController
   before_action :set_insumo, only: %i[show edit update destroy]
 
   def index
-    @insumos = Insumo.includes(:precio_insumos).order(:nombre)
+    @insumos = Insumo.includes(:precio_insumos, :proveedor).order(:nombre)
+    @grupos  = agrupar_por_proveedor(@insumos)
   end
 
   def show
@@ -45,14 +46,22 @@ class InsumosController < ApplicationController
 
   private
 
+  # Por proveedor en orden alfabetico, y los sin asignar al final.
+  def agrupar_por_proveedor(insumos)
+    con_proveedor, sin_proveedor = insumos.partition(&:proveedor)
+
+    grupos = con_proveedor.group_by(&:proveedor)
+                          .sort_by { |proveedor, _| proveedor.nombre }
+    grupos << [nil, sin_proveedor] if sin_proveedor.any?
+    grupos
+  end
+
   def set_insumo
     @insumo = Insumo.find(params[:id])
   end
 
-  # Parametros fuertes: solo estos tres campos pueden llegar del
-  # formulario. Sin esto, cualquiera podria enviar campos que no
-  # deberia poder tocar.
+  # Parametros fuertes: solo estos campos pueden llegar del formulario.
   def insumo_params
-    params.expect(insumo: %i[nombre unidad_base merma_porcentaje])
+    params.expect(insumo: %i[nombre proveedor_id unidad_base merma_porcentaje])
   end
 end

@@ -20,6 +20,16 @@
   </div>
 
   <div>
+    <%= f.label :proveedor_id, "Proveedor", class: "block text-sm font-medium text-slate-700" %>
+    <%= f.collection_select :proveedor_id, Proveedor.ordenados, :id, :nombre,
+          { include_blank: "Sin proveedor" }, class: clases_campo %>
+    <p class="mt-1 text-xs text-slate-500">
+      A quién le comprás este insumo.
+      <%= link_to "Crear un proveedor nuevo", new_proveedor_path, class: "underline" %>
+    </p>
+  </div>
+
+  <div>
     <%= f.label :unidad_base, class: "block text-sm font-medium text-slate-700" %>
     <%= f.select :unidad_base,
           Insumo::UNIDADES_BASE.map { |u| [t("costeo.unidades.#{u}"), u] },

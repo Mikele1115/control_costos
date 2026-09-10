@@ -11,6 +11,7 @@ ActiveRecord::Base.transaction do
   Receta.delete_all
   PrecioInsumo.delete_all
   Insumo.delete_all
+  Proveedor.delete_all
 end
 
 # nombre => unidad base, merma %, [[fecha, precio, cantidad, unidad], ...]
@@ -40,9 +41,34 @@ INSUMOS = {
   "Limon"            => ["g",      40, [[ENERO,  2_500,  1, "kg"]]]
 }
 
+# nombre => contacto, telefono, [insumos que provee]
+PROVEEDORES = {
+  "Nestlé" => ["Ana Ruiz", "2 2345 6789",
+    ["Leche entera", "Manteca"]],
+  "Distribuidora Central" => ["Carlos Pérez", "2 2876 5432",
+    ["Harina 000", "Pan rallado", "Azucar", "Sal fina", "Aceite girasol", "Pimienta negra"]],
+  "Verdulería El Mercado" => ["Marta Silva", "9 8765 4321",
+    ["Tomate perita", "Cebolla", "Ajo", "Zanahoria", "Albahaca fresca", "Papa", "Limon"]],
+  "Carnicería San Juan" => ["Juan Soto", "2 2555 1122",
+    ["Nalga", "Jamon cocido"]],
+  "Lácteos del Sur" => ["Pedro Lagos", "9 5544 3322",
+    ["Muzzarella", "Queso parmesano", "Huevo"]]
+}
+
+puts "Cargando proveedores..."
+PROVEEDORES.each do |nombre, (contacto, telefono, _)|
+  Proveedor.create!(nombre: nombre, contacto: contacto, telefono: telefono)
+end
+
+# insumo => nombre de su proveedor
+PROVEEDOR_DE = PROVEEDORES.flat_map { |proveedor, (_, _, insumos)|
+  insumos.map { |insumo| [insumo, proveedor] }
+}.to_h
+
 puts "Cargando insumos y precios..."
 INSUMOS.each do |nombre, (unidad_base, merma, precios)|
-  insumo = Insumo.create!(nombre: nombre, unidad_base: unidad_base, merma_porcentaje: merma)
+  insumo = Insumo.create!(nombre: nombre, unidad_base: unidad_base, merma_porcentaje: merma,
+                          proveedor: Proveedor.find_by(nombre: PROVEEDOR_DE[nombre]))
   precios.each do |fecha, precio, cantidad, unidad|
     PrecioInsumo.create!(insumo: insumo, precio_compra: precio, cantidad_compra: cantidad,
                          unidad_compra: unidad, vigente_desde: fecha)

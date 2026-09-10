@@ -3,6 +3,8 @@ class Insumo < ApplicationRecord
 
   UNIDADES_BASE = %w[g ml unidad].freeze
 
+  belongs_to :proveedor, optional: true
+
   has_many :precio_insumos, dependent: :restrict_with_error
 
   validates :nombre, presence: true,

@@ -15,6 +15,9 @@ es:
       insumo:
         one: Insumo
         other: Insumos
+      proveedor:
+        one: Proveedor
+        other: Proveedores
       precio_insumo:
         one: Precio
         other: Precios
@@ -31,6 +34,12 @@ es:
         unidad_base: Unidad base
         merma_porcentaje: Merma
         precio_insumos: precios cargados
+        proveedor: Proveedor
+      proveedor:
+        nombre: Nombre
+        contacto: Contacto
+        telefono: Teléfono
+        insumos: insumos
       precio_insumo:
         insumo: Insumo
         precio_compra: Precio de compra

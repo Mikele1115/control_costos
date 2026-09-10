@@ -10,6 +10,10 @@
 ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.plural(/([ti])a$/i, '\1as')
   inflect.singular(/([ti])a$/i, '\1a')
+
+  # Las palabras terminadas en consonante siguen tomando "s" a la
+  # inglesa: Proveedor daria la tabla "proveedors". Se declara aparte.
+  inflect.irregular "proveedor", "proveedores"
 end
 
 # --- Castellano: para los textos de las vistas ----------------------
