@@ -82,6 +82,27 @@ es:
               taken: "ya está en uso"
 
   # Etiquetas propias de la aplicacion, para las vistas
+  autenticacion:
+    entrar: Entrar
+    salir: Salir
+    correo: Correo electrónico
+    contrasena: Contraseña
+    contrasena_nueva: Contraseña nueva
+    contrasena_repetir: Repetir la contraseña
+    olvide: ¿Olvidaste tu contraseña?
+    volver: Volver a entrar
+    titulo_login: Entrar
+    titulo_olvide: Recuperar la contraseña
+    titulo_nueva: Elegí una contraseña nueva
+    enviar_instrucciones: Enviarme las instrucciones
+    guardar: Guardar la contraseña
+    credenciales_invalidas: Correo o contraseña incorrectos.
+    demasiados_intentos: Demasiados intentos. Probá de nuevo en unos minutos.
+    instrucciones_enviadas: Si existe una cuenta con ese correo, te enviamos las instrucciones.
+    contrasena_actualizada: Tu contraseña quedó actualizada. Ya podés entrar.
+    contrasenas_no_coinciden: Las contraseñas no coinciden.
+    enlace_invalido: El enlace de recuperación no es válido o ya caducó.
+    correo_asunto: Recuperá tu contraseña
   costeo:
     tipos:
       plato: Plato

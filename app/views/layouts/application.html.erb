@@ -21,13 +21,18 @@
           <span>Control de Costos La Splendida</span>
         <% end %>
 
-        <nav class="flex items-center gap-1 text-sm font-medium">
-          <%= enlace_nav "Panel",   root_path %>
-          <%= enlace_nav "Insumos", insumos_path %>
-          <%= enlace_nav "Proveedores", proveedores_path %>
-          <%= enlace_nav "Recetas", recetas_path %>
-          <%= enlace_nav "Márgenes", margenes_path %>
-        </nav>
+        <%# Sin sesion no hay a donde navegar: todo redirige al login. %>
+        <% if authenticated? %>
+          <nav class="flex items-center gap-1 text-sm font-medium">
+            <%= enlace_nav "Panel",   root_path %>
+            <%= enlace_nav "Insumos", insumos_path %>
+            <%= enlace_nav "Proveedores", proveedores_path %>
+            <%= enlace_nav "Recetas", recetas_path %>
+            <%= enlace_nav "Márgenes", margenes_path %>
+            <%= button_to t("autenticacion.salir"), session_path, method: :delete,
+                  class: "ml-2 cursor-pointer rounded-md px-3 py-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700" %>
+          </nav>
+        <% end %>
       </div>
     </header>
 

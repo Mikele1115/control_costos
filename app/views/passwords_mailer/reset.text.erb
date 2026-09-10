@@ -1,0 +1,6 @@
+Podés elegir una contraseña nueva desde este enlace:
+
+<%= edit_password_url(@user.password_reset_token) %>
+
+El enlace caduca en <%= distance_of_time_in_words(0, @user.password_reset_token_expires_in) %>.
+Si no pediste el cambio, ignorá este correo.

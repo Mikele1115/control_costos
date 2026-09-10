@@ -1,6 +1,7 @@
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
+require_relative "test_helpers/session_test_helper"
 
 # Constructores de datos de prueba.
 #
@@ -9,6 +10,13 @@ require "rails/test_help"
 # que el sistema deriva (como costo_por_unidad_base), y acabariamos
 # comprobando nuestra propia aritmetica en vez de la del codigo.
 module Constructores
+  def crear_usuario(email: nil, password: "secreto123")
+    User.create!(
+      email_address: email || "usuario#{SecureRandom.hex(4)}@ejemplo.test",
+      password: password
+    )
+  end
+
   def crear_insumo(nombre: nil, unidad_base: "g", merma: 0)
     Insumo.create!(
       nombre: nombre || "Insumo #{SecureRandom.hex(4)}",
@@ -63,5 +71,15 @@ module ActiveSupport
     parallelize(workers: :number_of_processors)
 
     include Constructores
+  end
+end
+
+# La aplicacion entera exige sesion iniciada. En vez de repetir el
+# login en cada uno de los ~130 tests de integracion, se abre una por
+# defecto. Los tests de autenticacion la cierran con `sign_out`.
+class ActionDispatch::IntegrationTest
+  setup do
+    @usuario = crear_usuario
+    sign_in_as(@usuario)
   end
 end

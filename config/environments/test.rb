@@ -4,6 +4,10 @@
 # and recreated between test runs. Don't rely on the data there!
 
 Rails.application.configure do
+  # bcrypt a coste minimo: cada test de integracion crea un usuario,
+  # y al coste real serian ~10 segundos extra por ejecucion.
+  config.active_model.secure_password_bcrypt_cost = BCrypt::Engine::MIN_COST
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # While tests run files are not watched, reloading is not necessary.
