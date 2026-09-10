@@ -24,7 +24,8 @@ class MargenesController < ApplicationController
       costeable: costeable,
       costo:     costeable ? plato.costo_total(fecha: @fecha)     : nil,
       margen:    costeable ? plato.margen_bruto(fecha: @fecha)    : nil,
-      food_cost: costeable ? plato.food_cost(fecha: @fecha)       : nil,
+      food_cost:  costeable ? plato.food_cost(fecha: @fecha)        : nil,
+      margen_pct: costeable ? plato.margen_porcentaje(fecha: @fecha) : nil,
       sugerido:  costeable ? plato.precio_sugerido(fecha: @fecha) : nil
     }
   end

@@ -23,35 +23,29 @@
 
 <% if @analizables.any? %>
   <% promedio_fc = @analizables.sum { |f| f[:food_cost] } / @analizables.size %>
-  <% margen_total = @analizables.sum { |f| f[:margen] } %>
-  <% fuera_banda = @analizables.count { |f| f[:food_cost] >= 35 } %>
+  <% fuera_banda = @analizables.count { |f| f[:food_cost] >= Receta::UMBRAL_ALTO } %>
+  <% mejor = @analizables.max_by { |f| f[:margen_pct] } %>
+  <% peor  = @analizables.min_by { |f| f[:margen_pct] } %>
 
-  <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="mb-4 grid gap-4 sm:grid-cols-2">
     <div class="rounded-lg border border-slate-200 bg-white p-4">
       <p class="text-xs uppercase tracking-wide text-slate-500">Food cost promedio</p>
       <p class="mt-2"><%= insignia_food_cost(promedio_fc) %></p>
+      <p class="mt-1 text-xs text-slate-500">de <%= pluralize(@analizables.size, "plato") %></p>
     </div>
-    <div class="rounded-lg border border-slate-200 bg-white p-4">
-      <p class="text-xs uppercase tracking-wide text-slate-500">Margen sumado</p>
-      <p class="mt-1 text-xl font-semibold text-slate-900"><%= moneda(margen_total) %></p>
-      <p class="text-xs text-slate-500">vendiendo uno de cada plato</p>
-    </div>
+
     <div class="rounded-lg border border-slate-200 bg-white p-4">
       <p class="text-xs uppercase tracking-wide text-slate-500">Fuera de banda</p>
-      <p class="mt-1 text-xl font-semibold <%= fuera_banda.positive? ? 'text-rose-700' : 'text-slate-900' %>">
+      <p class="mt-1 text-xl font-semibold <%= fuera_banda.positive? ? "text-rose-700" : "text-slate-900" %>">
         <%= fuera_banda %> de <%= @analizables.size %>
       </p>
-      <p class="text-xs text-slate-500">con food cost sobre 35 %</p>
+      <p class="text-xs text-slate-500">con food cost sobre <%= Receta::UMBRAL_ALTO %> %</p>
     </div>
-    <div class="rounded-lg border border-slate-200 bg-white p-4">
-      <p class="text-xs uppercase tracking-wide text-slate-500">Mejor margen</p>
-      <p class="mt-1 text-xl font-semibold text-slate-900">
-        <%= moneda(@analizables.map { |f| f[:margen] }.max) %>
-      </p>
-      <p class="text-xs text-slate-500">
-        <%= @analizables.max_by { |f| f[:margen] }[:plato].nombre %>
-      </p>
-    </div>
+  </div>
+
+  <div class="mb-8 grid gap-4 lg:grid-cols-2">
+    <%= render "tarjeta_margen", titulo: "Mejor margen", fila: mejor %>
+    <%= render "tarjeta_margen", titulo: "Peor margen",  fila: peor %>
   </div>
 
   <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">

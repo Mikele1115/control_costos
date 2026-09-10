@@ -21,6 +21,14 @@ module CosteoHelper
     number_with_precision(valor, precision: decimales, strip_insignificant_zeros: true)
   end
 
+  # Un solo lugar decide como se escribe un porcentaje. Sin esto,
+  # la insignia mostraba "80,0 %" y la fila de al lado "80 %".
+  def porcentaje(valor, decimales: 1)
+    return "—" if valor.nil?
+
+    "#{number_with_precision(valor, precision: decimales)} %"
+  end
+
   # --- Resumen de precios -------------------------------------------
 
   # Elige la frase segun lo que dicen los datos. La decision esta aca
@@ -74,7 +82,7 @@ module CosteoHelper
   # del food cost equivalente, para que un 66 % de margen se vea igual
   # de sano que un 34 % de food cost.
   def insignia_margen(valor)
-    texto = valor.nil? ? "—" : "#{number_with_precision(valor, precision: 1)} %"
+    texto = porcentaje(valor)
     clase = valor.nil? ? clase_food_cost(nil) : clase_food_cost(100 - valor)
 
     content_tag :span, texto,
@@ -82,7 +90,7 @@ module CosteoHelper
   end
 
   def insignia_food_cost(valor)
-    texto = valor.nil? ? "—" : "#{number_with_precision(valor, precision: 1)} %"
+    texto = porcentaje(valor)
     content_tag :span, texto,
       class: "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold #{clase_food_cost(valor)}"
   end

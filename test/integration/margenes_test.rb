@@ -65,7 +65,6 @@ class MargenesTest < ActionDispatch::IntegrationTest
   test "el resumen cuenta los platos fuera de banda" do
     get margenes_path
     assert_includes response.body, "1 de 3"     # solo el flojo pasa de 35 %
-    assert_includes response.body, "$4.000,00"  # margen sumado: 3000+800+200
   end
 
   test "la brecha dice cuanto habria que subir cada plato" do
@@ -118,5 +117,52 @@ class MargenesTest < ActionDispatch::IntegrationTest
     # de los validos, no lo que mando el usuario.
     assert_select "input[name=orden][value=?]", "margen"
     assert_not_includes response.body, "loquesea"
+  end
+
+  test "ya no muestra el margen sumado" do
+    get margenes_path
+    assert_not_includes response.body, "Margen sumado"
+  end
+
+  test "destaca el mejor y el peor margen, por porcentaje" do
+    get margenes_path
+    assert_response :success
+
+    # Cada porcentaje se busca DENTRO de su tarjeta: si se mirara toda
+    # la pagina, la tabla de abajo tambien los contiene y la asercion
+    # no distinguiria nada.
+    tarjetas = response.body.split("En qué se va cada").first
+    mejor    = tarjetas.split("Mejor margen").last.split("Peor margen").first
+    peor     = tarjetas.split("Peor margen").last
+
+    # Eficiente: food cost 20 % -> margen 80 %
+    assert_includes mejor, "80,0 %"
+    assert_includes mejor, "Plato Eficiente"
+    assert_includes mejor, "$800,00"      # margen: 1000 - 200
+    assert_includes mejor, "Precio de venta"
+    assert_includes mejor, "$1.000,00"
+    assert_includes mejor, "Costo de venta"
+    assert_includes mejor, "$200,00"
+    assert_includes mejor, "20,0 %"        # el costo sobre el precio
+    assert_includes mejor, "Margen de venta"
+
+    # Flojo: food cost 71,4 % -> margen 28,6 %
+    assert_includes peor, "28,6 %"
+    assert_includes peor, "Plato Flojo"
+    assert_includes peor, "$200,00"       # margen: 700 - 500
+    assert_includes peor, "$700,00"       # precio de venta
+    assert_includes peor, "$500,00"       # costo de venta
+    assert_includes peor, "71,4 %"        # el costo sobre el precio
+    assert_includes peor, "100 %"
+  end
+
+  test "el mejor margen se elige por porcentaje, no por importe" do
+    get margenes_path
+
+    # "Plato Caro" deja mas plata ($3.000) que ningun otro, pero es
+    # menos eficiente que "Plato Eficiente": 75 % contra 80 %.
+    tarjetas = response.body.split("En qué se va cada").first
+    assert_includes tarjetas, "Plato Eficiente"
+    assert_not_includes tarjetas, "Plato Caro"
   end
 end
