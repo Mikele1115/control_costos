@@ -33,6 +33,14 @@ class Receta < ApplicationRecord
     Unidad::EQUIVALENCIAS.dig(rendimiento_unidad.to_s.strip.downcase, 0)
   end
 
+  # Unidades en las que se puede dosificar esta preparacion.
+  # Insumo ya responde a esto: ahora ambos comparten tambien esta
+  # parte de la interfaz, y el desplegable puede tratarlos igual.
+  def unidades_permitidas
+    return [] unless preparacion?
+    Unidad.compatibles_con(unidad_base)
+  end
+
   # --- Costeo -------------------------------------------------------
 
   # Un plato ES un plato: esto es lo que cuesta servirlo.

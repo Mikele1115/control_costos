@@ -145,12 +145,15 @@
   <h3 class="mb-3 text-sm font-medium text-slate-700">Agregar ingrediente</h3>
 
   <%= form_with model: [@receta, @ingrediente],
-        class: "flex flex-wrap items-end gap-3" do |f| %>
+        class: "flex flex-wrap items-end gap-3",
+        data: { controller: "unidades" } do |f| %>
     <div class="min-w-56 flex-1">
       <label class="mb-1 block text-xs font-medium text-slate-600">Insumo o preparación</label>
       <%= select_tag "ingrediente[insumable]",
             grouped_options_for_select(@opciones),
-            include_blank: "Elegir...", class: clases_campo %>
+            include_blank: "Elegir...", class: clases_campo,
+            data: { unidades_target: "insumable",
+                    action: "change->unidades#actualizar" } %>
     </div>
     <div class="w-28">
       <%= f.label :cantidad, class: "mb-1 block text-xs font-medium text-slate-600" %>
@@ -159,15 +162,15 @@
     <div class="w-32">
       <%= f.label :unidad, class: "mb-1 block text-xs font-medium text-slate-600" %>
       <%= f.select :unidad, Unidad.todas.map { |u| [t("costeo.unidades.#{u}"), u] },
-            {}, class: clases_campo %>
+            {}, class: clases_campo,
+            data: { unidades_target: "unidad" } %>
     </div>
     <%= f.submit "Agregar",
           class: "cursor-pointer rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
   <% end %>
 
   <p class="mt-2 text-xs text-slate-500">
-    El desplegable no ofrece preparaciones que generarían un ciclo.
-    Si la unidad no corresponde a la magnitud del ingrediente, el sistema
-    lo rechazará al guardar.
+    Las unidades se ajustan al ingrediente que elijas. El desplegable
+    tampoco ofrece preparaciones que generarían un ciclo.
   </p>
 </div>

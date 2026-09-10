@@ -61,13 +61,30 @@ class RecetasController < ApplicationController
   # Lo que se puede agregar a esta receta: todos los insumos, y las
   # preparaciones que no generarian un ciclo. El modelo las rechazaria
   # igual, pero una interfaz no deberia ofrecer opciones invalidas.
+  #
+  # Cada opcion viaja con sus unidades compatibles en un data attribute:
+  # el navegador ya no necesita preguntar nada.
   def opciones_insumables
-    insumos = Insumo.order(:nombre).map { |i| [i.nombre, "Insumo:#{i.id}"] }
+    insumos = Insumo.order(:nombre).map do |insumo|
+      [insumo.nombre, "Insumo:#{insumo.id}",
+       { data: { unidades: unidades_json(insumo) } }]
+    end
 
     preparaciones = Receta.preparaciones.order(:nombre)
-                          .reject { |p| p == @receta || p.depende_de?(@receta) }
-                          .map { |p| [p.nombre, "Receta:#{p.id}"] }
+                          .reject { |prep| prep == @receta || prep.depende_de?(@receta) }
+                          .map do |prep|
+      [prep.nombre, "Receta:#{prep.id}",
+       { data: { unidades: unidades_json(prep) } }]
+    end
 
     [["Insumos", insumos], ["Preparaciones", preparaciones]]
+  end
+
+  # {"g":"gramos","kg":"kilogramos"} — valor y etiqueta ya traducida,
+  # para que el navegador no tenga que saber de idiomas.
+  def unidades_json(objeto)
+    objeto.unidades_permitidas
+          .index_with { |unidad| I18n.t("costeo.unidades.#{unidad}") }
+          .to_json
   end
 end
