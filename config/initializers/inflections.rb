@@ -1,17 +1,29 @@
-# El inflector de Rails es ingles y tiene dos juegos de reglas
-# independientes. Ambos tratan las terminaciones -ta / -ia como
-# plurales latinos:
+# --- Ingles: para los nombres de tabla y de clase -------------------
 #
-#   inflect.plural(/([ti])a$/i, '\1a')     data   -> data
-#   inflect.singular(/([ti])a$/i, '\1um')  data   -> datum
+# Sus reglas para plurales latinos (/([ti])a$/) existen para que "data",
+# "media" o "bacteria" queden invariables, pero de paso dejan sin
+# pluralizar medio castellano: receta, cuenta, venta, carta, dieta...
+# Como el dominio esta en castellano, las sustituimos.
 #
-# En castellano eso rompe receta, cuenta, venta, carta, dieta,
-# categoria... y ademas impide que el generador resuelva el
-# round-trip "Receta" -> "receta" -> "Receta".
-#
-# Como el dominio de esta aplicacion esta en castellano, sustituimos
-# ambas reglas: plural normal en -s y singular invariable.
+# Este juego es el que usa Rails para deducir "Receta" -> tabla
+# "recetas", asi que tocarlo cambia el esquema. No quitar.
 ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.plural(/([ti])a$/i, '\1as')
   inflect.singular(/([ti])a$/i, '\1a')
+end
+
+# --- Castellano: para los textos de las vistas ----------------------
+#
+# El helper `pluralize` de las vistas llama a String#pluralize(locale)
+# con el locale activo. Sin reglas para :es devolvia la palabra sin
+# tocar ("3 plato"), asi que hay que definirlas aparte.
+#
+# Las reglas se prueban de la ultima a la primera, por eso van de la
+# mas general a la mas especifica. Cubren el caso comun; no pretenden
+# ser una gramatica completa del castellano.
+ActiveSupport::Inflector.inflections(:es) do |inflect|
+  inflect.plural(/$/, "s")                      # plato  -> platos
+  inflect.plural(/([^aeiouáéíóú])$/i, '\1es')   # error  -> errores
+  inflect.plural(/z$/i, "ces")                  # luz    -> luces
+  inflect.plural(/(s|x)$/i, '\1')               # crisis -> crisis
 end

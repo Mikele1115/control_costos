@@ -1,0 +1,149 @@
+<% content_for :title, "Márgenes" %>
+
+<div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Comparativo de márgenes</h1>
+    <p class="mt-1 text-sm text-slate-500">
+      <%= pluralize(@analizables.size, "plato") %> con costo y precio
+      · al <%= l(@fecha, format: :long) %>
+    </p>
+  </div>
+
+  <%= form_with url: margenes_path, method: :get, class: "flex items-end gap-2" do |f| %>
+    <%= hidden_field_tag :orden, @orden %>
+    <div>
+      <%= f.label :fecha, "Ver a la fecha", class: "block text-xs font-medium text-slate-600" %>
+      <%= f.date_field :fecha, value: @fecha,
+            class: "mt-1 rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm" %>
+    </div>
+    <%= f.submit "Aplicar",
+          class: "cursor-pointer rounded-md border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50" %>
+  <% end %>
+</div>
+
+<% if @analizables.any? %>
+  <% promedio_fc = @analizables.sum { |f| f[:food_cost] } / @analizables.size %>
+  <% margen_total = @analizables.sum { |f| f[:margen] } %>
+  <% fuera_banda = @analizables.count { |f| f[:food_cost] >= 35 } %>
+
+  <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <p class="text-xs uppercase tracking-wide text-slate-500">Food cost promedio</p>
+      <p class="mt-2"><%= insignia_food_cost(promedio_fc) %></p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <p class="text-xs uppercase tracking-wide text-slate-500">Margen sumado</p>
+      <p class="mt-1 text-xl font-semibold text-slate-900"><%= moneda(margen_total) %></p>
+      <p class="text-xs text-slate-500">vendiendo uno de cada plato</p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <p class="text-xs uppercase tracking-wide text-slate-500">Fuera de banda</p>
+      <p class="mt-1 text-xl font-semibold <%= fuera_banda.positive? ? 'text-rose-700' : 'text-slate-900' %>">
+        <%= fuera_banda %> de <%= @analizables.size %>
+      </p>
+      <p class="text-xs text-slate-500">con food cost sobre 35 %</p>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <p class="text-xs uppercase tracking-wide text-slate-500">Mejor margen</p>
+      <p class="mt-1 text-xl font-semibold text-slate-900">
+        <%= moneda(@analizables.map { |f| f[:margen] }.max) %>
+      </p>
+      <p class="text-xs text-slate-500">
+        <%= @analizables.max_by { |f| f[:margen] }[:plato].nombre %>
+      </p>
+    </div>
+  </div>
+
+  <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+    En qué se va cada precio de venta
+  </h2>
+
+  <div class="mb-8 space-y-3 rounded-lg border border-slate-200 bg-white p-5">
+    <% @analizables.each do |fila| %>
+      <% ancho_total = @maximo_pvp.positive? ? (fila[:plato].precio_venta / @maximo_pvp * 100).to_f : 0 %>
+      <div>
+        <div class="mb-1 flex items-baseline justify-between text-sm">
+          <span class="font-medium text-slate-900"><%= fila[:plato].nombre %></span>
+          <span class="text-slate-500">
+            <%= moneda(fila[:plato].precio_venta) %>
+            = <%= moneda(fila[:costo]) %> costo + <%= moneda(fila[:margen]) %> margen
+          </span>
+        </div>
+        <div class="h-5 rounded bg-slate-50" style="width: <%= ancho_total.round(1) %>%">
+          <div class="flex h-full overflow-hidden rounded">
+            <div class="<%= clase_food_cost(fila[:food_cost]).split.first %> flex items-center justify-end pr-1"
+                 style="width: <%= fila[:food_cost].to_f.clamp(0, 100).round(1) %>%">
+              <span class="text-[10px] font-semibold text-slate-700">
+                <%= cantidad(fila[:food_cost], 0) %>%
+              </span>
+            </div>
+            <div class="flex-1 bg-slate-700"></div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    <p class="pt-2 text-xs text-slate-500">
+      El ancho de cada barra es proporcional al precio de venta.
+      La porción de color es lo que se lleva la materia prima; la gris oscura, el margen.
+    </p>
+  </div>
+<% end %>
+
+<h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+  Detalle
+  <span class="ml-2 font-normal normal-case text-slate-400">
+    ordenar por
+    <% { "margen" => "margen", "food_cost" => "food cost", "costo" => "costo", "nombre" => "nombre" }.each do |clave, etiqueta| %>
+      <%= link_to etiqueta, margenes_path(orden: clave, fecha: @fecha),
+            class: "ml-1 #{@orden == clave ? 'font-semibold text-slate-900 underline' : 'hover:underline'}" %>
+    <% end %>
+  </span>
+</h2>
+
+<div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+  <table class="min-w-full divide-y divide-slate-200 text-sm">
+    <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+      <tr>
+        <th class="px-4 py-3 text-left font-medium">Plato</th>
+        <th class="px-4 py-3 text-right font-medium">Costo</th>
+        <th class="px-4 py-3 text-right font-medium">Precio venta</th>
+        <th class="px-4 py-3 text-right font-medium">Margen</th>
+        <th class="px-4 py-3 text-center font-medium">Food cost</th>
+        <th class="px-4 py-3 text-right font-medium">Sugerido</th>
+        <th class="px-4 py-3 text-right font-medium">Brecha</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      <% @filas.each do |fila| %>
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3 font-medium text-slate-900">
+            <%= link_to fila[:plato].nombre, fila[:plato], class: "hover:underline" %>
+          </td>
+          <% if fila[:food_cost].present? %>
+            <% brecha = fila[:sugerido] - fila[:plato].precio_venta %>
+            <td class="px-4 py-3 text-right"><%= moneda(fila[:costo]) %></td>
+            <td class="px-4 py-3 text-right text-slate-500"><%= moneda(fila[:plato].precio_venta) %></td>
+            <td class="px-4 py-3 text-right font-medium"><%= moneda(fila[:margen]) %></td>
+            <td class="px-4 py-3 text-center"><%= insignia_food_cost(fila[:food_cost]) %></td>
+            <td class="px-4 py-3 text-right text-slate-500"><%= moneda(fila[:sugerido]) %></td>
+            <td class="px-4 py-3 text-right">
+              <% if brecha.positive? %>
+                <span class="text-rose-700">+<%= moneda(brecha) %></span>
+              <% else %>
+                <span class="text-slate-400">al día</span>
+              <% end %>
+            </td>
+          <% elsif fila[:costeable] %>
+            <td colspan="6" class="px-4 py-3 text-center text-xs text-slate-500">
+              sin precio de venta cargado
+            </td>
+          <% else %>
+            <td colspan="6" class="px-4 py-3 text-center text-xs text-amber-700">
+              falta el precio de algún insumo
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
