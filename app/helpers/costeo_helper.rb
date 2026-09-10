@@ -21,6 +21,27 @@ module CosteoHelper
     number_with_precision(valor, precision: decimales, strip_insignificant_zeros: true)
   end
 
+  # --- Resumen de precios -------------------------------------------
+
+  # Elige la frase segun lo que dicen los datos. La decision esta aca
+  # y no en la plantilla porque es una bifurcacion, no maquetado.
+  def frase_resumen_precios(resumen)
+    fecha = l(resumen.primero.vigente_desde, format: :long)
+
+    return t("costeo.resumen.unico", insumo: resumen.insumo.nombre, fecha: fecha) if resumen.unico?
+
+    clave = if resumen.subio? then "aumento"
+            elsif resumen.bajo? then "baja"
+            else "estable"
+            end
+
+    t("costeo.resumen.#{clave}",
+      insumo:    resumen.insumo.nombre,
+      fecha:     fecha,
+      variacion: "#{number_with_precision(resumen.variacion.abs, precision: 1)} %",
+      cambios:   pluralize(resumen.cambios, "cambio"))
+  end
+
   # --- Semaforo del food cost ---------------------------------------
   #
   # Los umbrales son de Receta: aca solo se decide el color.

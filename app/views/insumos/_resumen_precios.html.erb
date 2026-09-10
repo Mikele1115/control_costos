@@ -1,0 +1,63 @@
+<% resumen = ResumenPrecios.new(insumo, precios) %>
+
+<% unless resumen.vacio? %>
+  <div class="mb-8 overflow-hidden rounded-lg border border-slate-200 bg-white">
+    <div class="flex flex-wrap items-center gap-3 border-b border-slate-100 px-5 py-4">
+      <% if resumen.variacion %>
+        <span class="inline-flex rounded-full px-2.5 py-1 text-sm font-semibold
+                     <%= resumen.subio? ? 'bg-rose-100 text-rose-800' : resumen.bajo? ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600' %>">
+          <%= resumen.subio? ? "+" : "" %><%= cantidad(resumen.variacion, 1) %> %
+        </span>
+      <% end %>
+      <p class="text-sm text-slate-700"><%= frase_resumen_precios(resumen) %></p>
+    </div>
+
+    <dl class="grid gap-px bg-slate-100 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="bg-white px-5 py-4">
+        <dt class="text-xs uppercase tracking-wide text-slate-500">Cambios de precio</dt>
+        <dd class="mt-1 text-sm font-medium text-slate-900">
+          <%= resumen.cambios.zero? ? "ninguno" : pluralize(resumen.cambios, "cambio") %>
+          <% if resumen.meses.positive? %>
+            <span class="font-normal text-slate-500">en <%= pluralize(resumen.meses, "mes", "meses") %></span>
+          <% end %>
+        </dd>
+      </div>
+
+      <div class="bg-white px-5 py-4">
+        <dt class="text-xs uppercase tracking-wide text-slate-500">Último cambio</dt>
+        <dd class="mt-1 text-sm font-medium text-slate-900">
+          <% if resumen.unico? %>
+            <span class="font-normal text-slate-500">sin cambios</span>
+          <% elsif resumen.ultimo_futuro? %>
+            entra en vigor el <%= l(resumen.ultimo.vigente_desde) %>
+          <% else %>
+            hace <%= time_ago_in_words(resumen.ultimo.vigente_desde) %>
+            <% if resumen.variacion_ultimo_cambio %>
+              <span class="font-normal <%= resumen.variacion_ultimo_cambio.negative? ? 'text-emerald-600' : 'text-rose-600' %>">
+                (<%= resumen.variacion_ultimo_cambio.negative? ? "" : "+" %><%= cantidad(resumen.variacion_ultimo_cambio, 1) %> %)
+              </span>
+            <% end %>
+          <% end %>
+        </dd>
+      </div>
+
+      <div class="bg-white px-5 py-4">
+        <dt class="text-xs uppercase tracking-wide text-slate-500">Más barato</dt>
+        <dd class="mt-1 text-sm font-medium text-slate-900">
+          <%= moneda(resumen.mas_barato.costo_por_unidad_base) %>
+          <span class="font-normal text-slate-500">/ <%= insumo.unidad_base %></span>
+          <span class="block text-xs font-normal text-slate-400"><%= l(resumen.mas_barato.vigente_desde) %></span>
+        </dd>
+      </div>
+
+      <div class="bg-white px-5 py-4">
+        <dt class="text-xs uppercase tracking-wide text-slate-500">Más caro</dt>
+        <dd class="mt-1 text-sm font-medium text-slate-900">
+          <%= moneda(resumen.mas_caro.costo_por_unidad_base) %>
+          <span class="font-normal text-slate-500">/ <%= insumo.unidad_base %></span>
+          <span class="block text-xs font-normal text-slate-400"><%= l(resumen.mas_caro.vigente_desde) %></span>
+        </dd>
+      </div>
+    </dl>
+  </div>
+<% end %>

@@ -98,6 +98,11 @@ es:
       l: litros
       unidad: unidades
       docena: docenas
+    resumen:
+      unico: "Hay un único precio cargado para %{insumo}, vigente desde el %{fecha}."
+      aumento: "Desde su primer precio, el %{fecha}, %{insumo} acumula un aumento del %{variacion}."
+      baja: "Desde su primer precio, el %{fecha}, %{insumo} acumula una baja del %{variacion}."
+      estable: "%{insumo} volvió al mismo precio que tenía el %{fecha}, tras %{cambios}."
     indicadores:
       costo_total: Costo total
       costo_por_porcion: Costo por porción
