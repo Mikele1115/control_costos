@@ -87,6 +87,9 @@ test:
 production:
   primary: &primary_production
     <<: *default
+    # PostgreSQL corre en otro contenedor, no en el mismo que la app.
+    # Kamal lo hace alcanzable por el nombre del accesorio.
+    host: <%= ENV.fetch("DB_HOST", "localhost") %>
     database: control_costos_production
     username: control_costos
     password: <%= ENV["CONTROL_COSTOS_DATABASE_PASSWORD"] %>

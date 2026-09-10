@@ -1,119 +1,92 @@
-# Name of your application. Used to uniquely configure containers.
+# Kamal 2 — despliegue de Control de Costos La Splendida
+#
+# RELLENÁ LOS TRES MARCADORES EN MAYUSCULAS Y BORRÁ ESTA NOTA.
+# Los pasos completos estan en DESPLIEGUE.md
 service: control_costos
 
-# Name of the container image (use your-user/app-name on external registries).
-image: control_costos
+# <<< 1 >>> tu usuario del registro de imagenes
+#   Docker Hub:  miusuario/control_costos
+#   GitHub:      ghcr.io/miusuario/control_costos
+image: USUARIO_REGISTRO/control_costos
 
-# Deploy to these servers.
 servers:
   web:
-    - 192.168.0.1
-  # job:
-  #   hosts:
-  #     - 192.168.0.1
-  #   cmd: bin/jobs
+    # <<< 2 >>> la IP de tu VPS
+    - IP_DEL_VPS
 
-# Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
-# If used with Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
-#
-# Using an SSL proxy like this requires turning on config.assume_ssl and config.force_ssl in production.rb!
-#
-# Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
-#
-# proxy:
-#   ssl: true
-#   host: app.example.com
+proxy:
+  # <<< 3 >>> tu dominio, apuntando por DNS a la IP de arriba.
+  # Kamal saca el certificado de Let's Encrypt solo.
+  #
+  # ¿Sin dominio todavia? Comenta las dos lineas de abajo y pone
+  # `ssl: false`. Entraras por http://IP_DEL_VPS, sin candado.
+  ssl: true
+  host: MI-DOMINIO.COM
 
-# Where you keep your container images.
+  # /up no exige sesion: Rails::HealthController no pasa por
+  # ApplicationController. Kamal puede comprobar la salud del contenedor.
+  healthcheck:
+    path: /up
+
 registry:
-  # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
-  server: localhost:5555
+  # Para Docker Hub, borra la linea `server`.
+  server: ghcr.io
+  username: USUARIO_REGISTRO
+  password:
+    - KAMAL_REGISTRY_PASSWORD
 
-  # Needed for authenticated registries.
-  # username: your-user
+builder:
+  # Tu maquina y el VPS son x86_64. Con un servidor ARM: arm64
+  arch: amd64
 
-  # Always use an access token rather than real password when possible.
-  # password:
-  #   - KAMAL_REGISTRY_PASSWORD
-
-# Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
-  secret:
-    - RAILS_MASTER_KEY
   clear:
-    # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
-    # When you start using multiple servers, you should split out job processing to a dedicated machine.
+    # Nombre del contenedor de PostgreSQL en la red de Kamal:
+    # <service>-<accesorio>
+    DB_HOST: control_costos-db
+
+    # Muestra las credenciales de demostracion en el login.
+    # Quitalo si algun dia esto deja de ser una demo.
+    DEMO: 1
+
+    # El worker de trabajos corre dentro de Puma: un contenedor menos
+    # en un servidor pequeno.
     SOLID_QUEUE_IN_PUMA: true
 
-    # Set number of processes dedicated to Solid Queue (default: 1)
-    # JOB_CONCURRENCY: 3
+    # Un solo worker de Puma: en 2 GB conviven la app y PostgreSQL.
+    WEB_CONCURRENCY: 1
+  secret:
+    - RAILS_MASTER_KEY
+    - CONTROL_COSTOS_DATABASE_PASSWORD
 
-    # Set number of cores available to the application on each server (default: 1).
-    # WEB_CONCURRENCY: 2
-
-    # Match this to any external database server to configure Active Record correctly
-    # Use control_costos-db for a db accessory server on same machine via local kamal docker network.
-    # DB_HOST: 192.168.0.2
-
-    # Log everything from Rails
-    # RAILS_LOG_LEVEL: debug
-
-# Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
-# "bin/kamal logs -r job" will tail logs from the first server in the job section.
 aliases:
   console: app exec --interactive --reuse "bin/rails console"
   shell: app exec --interactive --reuse "bash"
   logs: app logs -f
   dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
+  sembrar: app exec "PERMITIR_SEED=1 bin/rails db:seed"
 
-# Use a persistent storage volume for sqlite database files and local Active Storage files.
-# Recommended to change this to a mounted volume path that is backed up off server.
-volumes:
-  - "control_costos_storage:/rails/storage"
+accessories:
+  db:
+    image: postgres:17
+    # <<< 2 >>> la misma IP del VPS
+    host: IP_DEL_VPS
 
-# Bridge fingerprinted assets, like JS and CSS, between versions to avoid
-# hitting 404 on in-flight requests. Combines all files from new and old
-# version inside the asset_path.
-asset_path: /rails/public/assets
+    # Atado a 127.0.0.1: PostgreSQL NO queda expuesto a internet.
+    port: "127.0.0.1:5432:5432"
 
-# Configure the image builder.
-builder:
-  arch: amd64
+    env:
+      clear:
+        POSTGRES_USER: control_costos
+        POSTGRES_DB: control_costos_production
+      secret:
+        - POSTGRES_PASSWORD
 
-  # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
-  # remote: ssh://docker@docker-builder-server
-  #
-  # # Pass arguments and secrets to the Docker build process
-  # args:
-  #   RUBY_VERSION: 3.4.5
-  # secrets:
-  #   - GITHUB_TOKEN
-  #   - RAILS_MASTER_KEY
+    # Se ejecuta la primera vez que se crea el volumen: crea las tres
+    # bases que Rails 8 usa para cache, trabajos y websockets.
+    files:
+      - db/produccion/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-# Use a different ssh user than root
-# ssh:
-#   user: app
-
-# Use accessory services (secrets come from .kamal/secrets).
-# accessories:
-#   db:
-#     image: mysql:8.0
-#     host: 192.168.0.2
-#     # Change to 3306 to expose port to the world instead of just local network.
-#     port: "127.0.0.1:3306:3306"
-#     env:
-#       clear:
-#         MYSQL_ROOT_HOST: '%'
-#       secret:
-#         - MYSQL_ROOT_PASSWORD
-#     files:
-#       - config/mysql/production.cnf:/etc/mysql/my.cnf
-#       - db/production.sql:/docker-entrypoint-initdb.d/setup.sql
-#     directories:
-#       - data:/var/lib/mysql
-#   redis:
-#     image: valkey/valkey:8
-#     host: 192.168.0.2
-#     port: 6379
-#     directories:
-#       - data:/data
+    # Los datos viven en el servidor, no dentro del contenedor.
+    directories:
+      - data:/var/lib/postgresql/data
