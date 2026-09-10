@@ -103,7 +103,18 @@ es:
     contrasenas_no_coinciden: Las contraseñas no coinciden.
     enlace_invalido: El enlace de recuperación no es válido o ya caducó.
     correo_asunto: Recuperá tu contraseña
+  avisos:
+    food_cost:
+      asunto:
+        one: "Un plato empeoró su food cost"
+        other: "%{count} platos empeoraron su food cost"
   costeo:
+    bandas:
+      bajo: bajo
+      sano: sano
+      alto: alto
+      critico: crítico
+      perdida: se vende bajo costo
     tipos:
       plato: Plato
       preparacion: Preparación

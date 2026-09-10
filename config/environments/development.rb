@@ -1,6 +1,10 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  # Sin SMTP configurado, los correos se escriben en tmp/mails y se
+  # pueden abrir con el navegador. Nada sale a internet.
+  config.action_mailer.delivery_method = :file
+
   # Permite exponer el servidor de desarrollo por un tunel publico
   # para ensenar la aplicacion. Sin esto Rails responde
   # "Blocked hosts" a cualquier dominio que no sea localhost.

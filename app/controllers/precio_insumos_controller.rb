@@ -13,6 +13,11 @@ class PrecioInsumosController < ApplicationController
     @precio = @insumo.precio_insumos.new(precio_params)
 
     if @precio.save
+      # En segundo plano: comparar el antes y el despues de todos
+      # los platos lleva su tiempo y guardar un precio tiene que
+      # seguir siendo instantaneo.
+      AvisoFoodCostJob.perform_later(@precio)
+
       redirect_to @insumo,
         notice: "Precio cargado: #{helpers.moneda(@precio.costo_por_unidad_base)} " \
                 "por #{@insumo.unidad_base}."

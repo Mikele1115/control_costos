@@ -1,0 +1,49 @@
+<p>
+  Cargaste un precio nuevo de <strong><%= @insumo.nombre %></strong>:
+  <%= number_to_currency(@precio.precio_compra) %> por
+  <%= number_with_precision(@precio.cantidad_compra, precision: 2, strip_insignificant_zeros: true) %>
+  <%= @precio.unidad_compra %>, vigente desde el
+  <%= l(@precio.vigente_desde, format: :long) %>.
+</p>
+
+<p>
+  <% if @cruces.one? %>
+    Con ese cambio <strong>un plato empeoró</strong> su food cost:
+  <% else %>
+    Con ese cambio <strong><%= @cruces.size %> platos empeoraron</strong> su food cost:
+  <% end %>
+</p>
+
+<table cellpadding="6" cellspacing="0" border="1" style="border-collapse: collapse; font-family: sans-serif; font-size: 14px;">
+  <tr style="background: #f1f5f9;">
+    <th align="left">Plato</th>
+    <th align="left">Pasó de</th>
+    <th align="left">a</th>
+    <th align="right">Se vende a</th>
+    <th align="right">Debería valer</th>
+  </tr>
+  <% @cruces.each do |cruce| %>
+    <tr>
+      <td><%= cruce.plato.nombre %></td>
+      <td>
+        <% if cruce.antes %>
+          <%= number_with_precision(cruce.antes, precision: 1) %> %
+          (<%= t("costeo.bandas.#{cruce.banda_antes}") %>)
+        <% else %>
+          sin costear
+        <% end %>
+      </td>
+      <td>
+        <strong><%= number_with_precision(cruce.despues, precision: 1) %> %</strong>
+        (<%= t("costeo.bandas.#{cruce.banda_despues}") %>)
+      </td>
+      <td align="right"><%= number_to_currency(cruce.plato.precio_venta) %></td>
+      <td align="right"><%= number_to_currency(cruce.sugerido) %></td>
+    </tr>
+  <% end %>
+</table>
+
+<p style="color: #64748b; font-size: 13px;">
+  La banda sana está entre <%= Receta::UMBRAL_BAJO %> % y <%= Receta::UMBRAL_ALTO %> %.
+  Podés bajar la cantidad del ingrediente, cambiarlo, o subir el precio de venta.
+</p>

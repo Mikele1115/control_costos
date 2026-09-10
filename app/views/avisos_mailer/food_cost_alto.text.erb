@@ -1,0 +1,17 @@
+Cargaste un precio nuevo de <%= @insumo.nombre %>:
+<%= number_to_currency(@precio.precio_compra) %> por <%= number_with_precision(@precio.cantidad_compra, precision: 2, strip_insignificant_zeros: true) %> <%= @precio.unidad_compra %>,
+vigente desde el <%= l(@precio.vigente_desde, format: :long) %>.
+
+Con ese cambio <%= @cruces.size %> plato(s) empeoraron su food cost:
+
+<% @cruces.each do |cruce| -%>
+* <%= cruce.plato.nombre %>
+  <% if cruce.antes -%>
+  de <%= number_with_precision(cruce.antes, precision: 1) %> % (<%= t("costeo.bandas.#{cruce.banda_antes}") %>) a <%= number_with_precision(cruce.despues, precision: 1) %> % (<%= t("costeo.bandas.#{cruce.banda_despues}") %>)
+  <% else -%>
+  ahora en <%= number_with_precision(cruce.despues, precision: 1) %> % (<%= t("costeo.bandas.#{cruce.banda_despues}") %>), antes no se podia costear
+  <% end -%>
+  se vende a <%= number_to_currency(cruce.plato.precio_venta) %>, deberia valer <%= number_to_currency(cruce.sugerido) %>
+
+<% end -%>
+La banda sana esta entre <%= Receta::UMBRAL_BAJO %> % y <%= Receta::UMBRAL_ALTO %> %.
