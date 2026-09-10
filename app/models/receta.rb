@@ -107,6 +107,33 @@ class Receta < ApplicationRecord
 
   # --- Indicadores de negocio ---------------------------------------
 
+  # Bandas de referencia del rubro. Viven en el modelo y no en el
+  # helper porque son una regla de negocio, no una decision visual:
+  # el panel avisa con los mismos umbrales con que la pantalla pinta.
+  UMBRAL_BAJO    = 25
+  UMBRAL_ALTO    = 35
+  UMBRAL_CRITICO = 45
+
+  def self.banda_para(valor)
+    return nil if valor.nil?
+
+    if    valor >= 100            then :perdida
+    elsif valor >= UMBRAL_CRITICO then :critico
+    elsif valor >= UMBRAL_ALTO    then :alto
+    elsif valor >= UMBRAL_BAJO    then :sano
+    else                               :bajo
+    end
+  end
+
+  def banda_food_cost(fecha: Date.current)
+    self.class.banda_para(food_cost(fecha: fecha))
+  end
+
+  # Alto, critico o vendiendose bajo costo.
+  def requiere_atencion?(fecha: Date.current)
+    %i[perdida critico alto].include?(banda_food_cost(fecha: fecha))
+  end
+
   # Que porcentaje del precio de venta se va en materia prima.
   # En gastronomia se busca entre 25% y 35%.
   def food_cost(fecha: Date.current)

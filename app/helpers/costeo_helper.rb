@@ -23,27 +23,30 @@ module CosteoHelper
 
   # --- Semaforo del food cost ---------------------------------------
   #
-  # Referencia gastronomica: por debajo de 25% el plato esta barato,
-  # entre 25 y 35 es la banda sana, por encima de 45 no es rentable.
+  # Los umbrales son de Receta: aca solo se decide el color.
+
+  COLORES_BANDA = {
+    perdida: "bg-rose-200 text-rose-900",
+    critico: "bg-rose-100 text-rose-800",
+    alto:    "bg-amber-100 text-amber-900",
+    sano:    "bg-emerald-100 text-emerald-800",
+    bajo:    "bg-sky-100 text-sky-800"
+  }.freeze
+
+  ETIQUETAS_BANDA = {
+    perdida: "se vende bajo costo",
+    critico: "crítico",
+    alto:    "alto",
+    sano:    "sano",
+    bajo:    "bajo"
+  }.freeze
 
   def clase_food_cost(valor)
-    case valor
-    when nil     then "bg-slate-100 text-slate-500"
-    when ...25   then "bg-sky-100 text-sky-800"
-    when 25...35 then "bg-emerald-100 text-emerald-800"
-    when 35...45 then "bg-amber-100 text-amber-900"
-    else              "bg-rose-100 text-rose-800"
-    end
+    COLORES_BANDA.fetch(Receta.banda_para(valor), "bg-slate-100 text-slate-500")
   end
 
   def etiqueta_food_cost(valor)
-    case valor
-    when nil     then "sin datos"
-    when ...25   then "bajo"
-    when 25...35 then "sano"
-    when 35...45 then "alto"
-    else              "crítico"
-    end
+    ETIQUETAS_BANDA.fetch(Receta.banda_para(valor), "sin datos")
   end
 
   def insignia_food_cost(valor)

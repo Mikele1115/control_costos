@@ -13,12 +13,57 @@
       <%= f.label :fecha, "Ver costos a la fecha",
             class: "block text-xs font-medium text-slate-600" %>
       <%= f.date_field :fecha, value: @fecha,
-            class: "mt-1 rounded-md border-slate-300 text-sm shadow-sm" %>
+            class: "mt-1 rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm" %>
     </div>
     <%= f.submit "Aplicar",
           class: "cursor-pointer rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
   <% end %>
 </div>
+
+<% if @alertas.any? %>
+  <div class="mb-8 overflow-hidden rounded-lg border border-rose-200 bg-white">
+    <div class="border-b border-rose-200 bg-rose-50 px-4 py-3">
+      <p class="text-sm font-semibold text-rose-900">
+        <% if @alertas.one? %>
+          Un plato necesita atención
+        <% else %>
+          <%= @alertas.size %> platos necesitan atención
+        <% end %>
+      </p>
+      <p class="mt-0.5 text-xs text-rose-800">
+        Su food cost supera el <%= Receta::UMBRAL_ALTO %> %: la materia prima
+        se lleva demasiado del precio de venta.
+      </p>
+    </div>
+
+    <ul class="divide-y divide-slate-100">
+      <% @alertas.each do |alerta| %>
+        <li class="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <%= insignia_food_cost(alerta[:food_cost]) %>
+            <%= link_to alerta[:plato].nombre, alerta[:plato],
+                  class: "text-sm font-medium text-slate-900 hover:underline" %>
+            <% if alerta[:banda] == :perdida %>
+              <span class="rounded bg-rose-600 px-1.5 py-0.5 text-xs font-semibold text-white">
+                se vende bajo costo
+              </span>
+            <% end %>
+          </div>
+          <p class="text-sm text-slate-600">
+            se vende a <%= moneda(alerta[:plato].precio_venta) %> ·
+            debería valer <strong class="text-slate-900"><%= moneda(alerta[:sugerido]) %></strong>
+            <span class="font-medium text-rose-700">(+<%= moneda(alerta[:brecha]) %>)</span>
+          </p>
+        </li>
+      <% end %>
+    </ul>
+
+    <div class="border-t border-slate-100 px-4 py-2">
+      <%= link_to "Ver el comparativo completo →", margenes_path(fecha: @fecha),
+            class: "text-xs font-medium text-slate-600 hover:underline" %>
+    </div>
+  </div>
+<% end %>
 
 <% if @sin_precio.any? %>
   <div class="mb-8 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
@@ -40,7 +85,7 @@
       <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
         <tr>
           <th class="px-4 py-3 text-left font-medium">Plato</th>
-                    <th class="px-4 py-3 text-right font-medium">Costo</th>
+          <th class="px-4 py-3 text-right font-medium">Costo</th>
           <th class="px-4 py-3 text-right font-medium">Precio venta</th>
           <th class="px-4 py-3 text-right font-medium">Margen</th>
           <th class="px-4 py-3 text-center font-medium">Food cost</th>
@@ -54,14 +99,14 @@
             <td class="px-4 py-3 font-medium text-slate-900">
               <%= link_to plato.nombre, receta_path(plato), class: "hover:underline" %>
             </td>
-                        <% if costeable %>
+            <% if costeable %>
               <td class="px-4 py-3 text-right"><%= moneda(plato.costo_total(fecha: @fecha)) %></td>
               <td class="px-4 py-3 text-right text-slate-500"><%= moneda(plato.precio_venta) %></td>
               <td class="px-4 py-3 text-right"><%= moneda(plato.margen_bruto(fecha: @fecha)) %></td>
               <td class="px-4 py-3 text-center"><%= insignia_food_cost(plato.food_cost(fecha: @fecha)) %></td>
               <td class="px-4 py-3 text-right text-slate-500"><%= moneda(plato.precio_sugerido(fecha: @fecha)) %></td>
             <% else %>
-              <td colspan="4" class="px-4 py-3 text-center text-xs text-amber-700">
+              <td colspan="5" class="px-4 py-3 text-center text-xs text-amber-700">
                 falta el precio de algún insumo
               </td>
             <% end %>
