@@ -2,8 +2,12 @@ class InsumosController < ApplicationController
   before_action :set_insumo, only: %i[show edit update destroy]
 
   def index
-    @insumos = Insumo.includes(:precio_insumos, :proveedor).order(:nombre)
-    @grupos  = agrupar_por_proveedor(@insumos)
+    @busqueda = params[:q].to_s.strip
+    @insumos  = Insumo.buscar(@busqueda)
+                      .includes(:precio_insumos, :proveedor)
+                      .order(:nombre)
+    @grupos   = agrupar_por_proveedor(@insumos)
+    @total    = Insumo.count
   end
 
   def show

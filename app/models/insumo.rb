@@ -21,6 +21,23 @@ class Insumo < ApplicationRecord
     message: "debe estar entre 0 y 99,99"
   }
 
+  # --- Busqueda -----------------------------------------------------
+
+  # Busca por nombre del insumo o de su proveedor, ignorando mayusculas
+  # y acentos: "lacteos" encuentra "Lácteos del Sur".
+  #
+  # sanitize_sql_like escapa % y _ del texto que escribe el usuario.
+  # Sin eso, teclear "%" listaria todo y "_" actuaria de comodin.
+  def self.buscar(termino)
+    termino = termino.to_s.strip
+    return all if termino.blank?
+
+    left_joins(:proveedor).where(
+      "unaccent(insumos.nombre) ILIKE unaccent(:q) OR unaccent(proveedores.nombre) ILIKE unaccent(:q)",
+      q: "%#{sanitize_sql_like(termino)}%"
+    )
+  end
+
   # --- Precios ------------------------------------------------------
 
   def precio_vigente(fecha = Date.current)

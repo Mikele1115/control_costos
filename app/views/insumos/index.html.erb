@@ -1,16 +1,45 @@
 <% content_for :title, "Insumos" %>
 
-<div class="mb-6 flex items-center justify-between">
+<div class="mb-6 flex flex-wrap items-center justify-between gap-4">
   <div>
     <h1 class="text-2xl font-bold text-slate-900">Insumos</h1>
     <p class="mt-1 text-sm text-slate-500">
-      <%= pluralize(@insumos.size, "insumo") %> ·
-      <%= pluralize(@grupos.count { |proveedor, _| proveedor }, "proveedor") %>
+      <%= pluralize(@total, "insumo") %> ·
+      <%= pluralize(Proveedor.count, "proveedor") %>
     </p>
   </div>
-  <%= link_to "Nuevo insumo", new_insumo_path,
-        class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
+
+  <div class="flex flex-wrap items-center gap-3">
+    <%= form_with url: insumos_path, method: :get, class: "flex items-center gap-2" do |f| %>
+      <%= f.search_field :q, value: @busqueda,
+            placeholder: "Buscar por nombre o proveedor…",
+            class: "w-64 rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900" %>
+      <%= f.submit "Buscar",
+            class: "cursor-pointer rounded-md border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50" %>
+    <% end %>
+    <%= link_to "Nuevo insumo", new_insumo_path,
+          class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
+  </div>
 </div>
+
+<% if @busqueda.present? %>
+  <div class="mb-4 flex flex-wrap items-center gap-2 text-sm">
+    <span class="text-slate-600">
+      <%= pluralize(@insumos.size, "resultado") %> para «<strong class="text-slate-900"><%= @busqueda %></strong>»
+    </span>
+    <%= link_to "limpiar", insumos_path, class: "text-slate-400 underline hover:text-slate-700" %>
+  </div>
+<% end %>
+
+<% if @grupos.empty? %>
+  <div class="rounded-lg border border-slate-200 bg-white px-4 py-10 text-center">
+    <p class="text-sm text-slate-500">
+      Ningún insumo coincide con «<strong class="text-slate-700"><%= @busqueda %></strong>».
+    </p>
+    <%= link_to "Ver todos los insumos", insumos_path,
+          class: "mt-2 inline-block text-sm font-medium text-slate-900 underline" %>
+  </div>
+<% end %>
 
 <% @grupos.each do |proveedor, insumos| %>
   <section class="mb-8">
