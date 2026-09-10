@@ -49,6 +49,17 @@ module CosteoHelper
     ETIQUETAS_BANDA.fetch(Receta.banda_para(valor), "sin datos")
   end
 
+  # Margen y food cost son complementarios: suman 100. El color sale
+  # del food cost equivalente, para que un 66 % de margen se vea igual
+  # de sano que un 34 % de food cost.
+  def insignia_margen(valor)
+    texto = valor.nil? ? "—" : "#{number_with_precision(valor, precision: 1)} %"
+    clase = valor.nil? ? clase_food_cost(nil) : clase_food_cost(100 - valor)
+
+    content_tag :span, texto,
+      class: "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold #{clase}"
+  end
+
   def insignia_food_cost(valor)
     texto = valor.nil? ? "—" : "#{number_with_precision(valor, precision: 1)} %"
     content_tag :span, texto,

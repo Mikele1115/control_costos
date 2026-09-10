@@ -155,6 +155,15 @@ class Receta < ApplicationRecord
     (costo_total(fecha: fecha) / precio_venta) * 100
   end
 
+  # El complemento del food cost: lo que queda del precio de venta
+  # despues de pagar la materia prima. Los dos suman 100.
+  def margen_porcentaje(fecha: Date.current)
+    valor = food_cost(fecha: fecha)
+    return nil if valor.nil?
+
+    100 - valor
+  end
+
   def margen_bruto(fecha: Date.current)
     return nil unless plato? && precio_venta.present?
     precio_venta - costo_total(fecha: fecha)

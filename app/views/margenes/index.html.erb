@@ -123,7 +123,12 @@
             <% brecha = fila[:sugerido] - fila[:plato].precio_venta %>
             <td class="px-4 py-3 text-right"><%= moneda(fila[:costo]) %></td>
             <td class="px-4 py-3 text-right text-slate-500"><%= moneda(fila[:plato].precio_venta) %></td>
-            <td class="px-4 py-3 text-right font-medium"><%= moneda(fila[:margen]) %></td>
+            <td class="px-4 py-3 text-right font-medium">
+              <%= moneda(fila[:margen]) %>
+              <span class="block text-xs font-normal text-slate-400">
+                <%= cantidad(100 - fila[:food_cost], 1) %> %
+              </span>
+            </td>
             <td class="px-4 py-3 text-center"><%= insignia_food_cost(fila[:food_cost]) %></td>
             <td class="px-4 py-3 text-right text-slate-500"><%= moneda(fila[:sugerido]) %></td>
             <td class="px-4 py-3 text-right">
