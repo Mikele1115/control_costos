@@ -1,0 +1,63 @@
+<% content_for :title, "Cargar precio" %>
+<% clases_campo = "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900" %>
+
+<div class="mx-auto max-w-lg">
+  <%= link_to "← #{@insumo.nombre}", @insumo, class: "text-sm text-slate-500 hover:underline" %>
+  <h1 class="mb-1 mt-1 text-2xl font-bold text-slate-900">Cargar precio</h1>
+  <p class="mb-6 text-sm text-slate-500">
+    Anotá la compra tal como la hiciste. El costo por
+    <%= @insumo.unidad_base %> lo calcula el sistema.
+  </p>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-6">
+    <%= form_with model: [@insumo, @precio], class: "space-y-5" do |f| %>
+      <% if @precio.errors.any? %>
+        <div class="rounded-lg border border-rose-200 bg-rose-50 p-4">
+          <p class="text-sm font-semibold text-rose-900">
+            No se pudo guardar (<%= pluralize(@precio.errors.count, "error") %>)
+          </p>
+          <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-rose-800">
+            <% @precio.errors.full_messages.each do |mensaje| %>
+              <li><%= mensaje %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div>
+        <%= f.label :precio_compra, "¿Cuánto pagaste?", class: "block text-sm font-medium text-slate-700" %>
+        <%= f.number_field :precio_compra, step: "0.01", min: 0,
+              class: clases_campo, autofocus: true, placeholder: "37500" %>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :cantidad_compra, "¿Cuánto compraste?", class: "block text-sm font-medium text-slate-700" %>
+          <%= f.number_field :cantidad_compra, step: "0.0001", min: 0,
+                class: clases_campo, placeholder: "25" %>
+        </div>
+        <div>
+          <%= f.label :unidad_compra, "Unidad", class: "block text-sm font-medium text-slate-700" %>
+          <%= f.select :unidad_compra,
+                @insumo.unidades_permitidas.map { |u| [t("costeo.unidades.#{u}"), u] },
+                {}, class: clases_campo %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :vigente_desde, "Rige desde", class: "block text-sm font-medium text-slate-700" %>
+        <%= f.date_field :vigente_desde, class: clases_campo %>
+        <p class="mt-1 text-xs text-slate-500">
+          Los costos anteriores a esta fecha seguirán usando el precio previo.
+          No puede haber dos precios del mismo día.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3 pt-2">
+        <%= f.submit "Guardar precio",
+              class: "cursor-pointer rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
+        <%= link_to "Cancelar", @insumo, class: "text-sm text-slate-500 hover:underline" %>
+      </div>
+    <% end %>
+  </div>
+</div>

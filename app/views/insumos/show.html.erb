@@ -9,7 +9,9 @@
       · admite <%= @insumo.unidades_permitidas.join(", ") %>
     </p>
   </div>
-  <div class="flex gap-2">
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Cargar precio", new_insumo_precio_insumo_path(@insumo),
+          class: "rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
     <%= link_to "Editar", edit_insumo_path(@insumo),
           class: "rounded-md border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50" %>
     <%= button_to "Eliminar", @insumo, method: :delete,
@@ -44,23 +46,29 @@
 </h2>
 
 <% if @precios.any? %>
+  <% vigente = @insumo.precio_vigente %>
   <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
     <table class="min-w-full divide-y divide-slate-200 text-sm">
       <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
         <tr>
-          <th class="px-4 py-3 text-left font-medium">Vigente desde</th>
+          <th class="px-4 py-3 text-left font-medium">Rige desde</th>
           <th class="px-4 py-3 text-right font-medium">Compra</th>
           <th class="px-4 py-3 text-right font-medium">Cantidad</th>
           <th class="px-4 py-3 text-right font-medium">Costo unitario</th>
+          <th class="px-4 py-3"></th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-100">
-        <% @precios.each_with_index do |precio, i| %>
-          <tr class="<%= "bg-emerald-50/50" if i.zero? %>">
+        <% @precios.each do |precio| %>
+          <% es_vigente = precio == vigente %>
+          <% es_futuro  = precio.vigente_desde > Date.current %>
+          <tr class="<%= "bg-emerald-50/50" if es_vigente %>">
             <td class="px-4 py-3">
               <%= l(precio.vigente_desde) %>
-              <% if i.zero? %>
+              <% if es_vigente %>
                 <span class="ml-2 rounded bg-emerald-100 px-1.5 py-0.5 text-xs text-emerald-800">vigente</span>
+              <% elsif es_futuro %>
+                <span class="ml-2 rounded bg-sky-100 px-1.5 py-0.5 text-xs text-sky-800">futuro</span>
               <% end %>
             </td>
             <td class="px-4 py-3 text-right"><%= moneda(precio.precio_compra) %></td>
@@ -70,6 +78,11 @@
             <td class="px-4 py-3 text-right font-medium">
               <%= moneda(precio.costo_por_unidad_base) %> / <%= @insumo.unidad_base %>
             </td>
+            <td class="px-4 py-3 text-right">
+              <%= button_to "Borrar", insumo_precio_insumo_path(@insumo, precio), method: :delete,
+                    form: { data: { turbo_confirm: "¿Borrar el precio del #{l(precio.vigente_desde)}?" } },
+                    class: "cursor-pointer text-xs text-slate-400 hover:text-rose-600 hover:underline" %>
+            </td>
           </tr>
         <% end %>
       </tbody>
@@ -78,5 +91,6 @@
 <% else %>
   <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
     Sin precios cargados: este insumo no se puede costear todavía.
+    <%= link_to "Cargar el primero", new_insumo_precio_insumo_path(@insumo), class: "font-medium underline" %>
   </div>
 <% end %>
