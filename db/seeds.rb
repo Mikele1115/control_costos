@@ -47,9 +47,6 @@ INSUMOS.each do |nombre, (unidad_base, merma, precios)|
   end
 end
 
-def ins(nombre) = Insumo.find_by!(nombre: nombre)
-def rec(nombre) = Receta.find_by!(nombre: nombre)
-
 def renglones(receta, lista)
   lista.each do |nombre, cantidad, unidad|
     insumable = Insumo.find_by(nombre: nombre) || Receta.find_by!(nombre: nombre)
@@ -58,6 +55,8 @@ def renglones(receta, lista)
   end
 end
 
+# Las preparaciones se hacen por tanda: rinden una cantidad medible
+# que despues se dosifica en los platos.
 puts "Cargando preparaciones..."
 
 salsa = Receta.create!(nombre: "Salsa de tomate", tipo: "preparacion",
@@ -92,43 +91,42 @@ renglones(pure, [
   ["Sal fina",     10,  "g"]
 ])
 
+# Los platos se cargan POR PLATO: las cantidades son las que van
+# efectivamente en el que se sirve.
 puts "Cargando platos..."
 
-napo = Receta.create!(nombre: "Milanesa napolitana", tipo: "plato",
-                      porciones: 4, precio_venta: 8_500)
+napo = Receta.create!(nombre: "Milanesa napolitana", tipo: "plato", precio_venta: 8_500)
 renglones(napo, [
-  ["Nalga",           800, "g"],
-  ["Pan rallado",     200, "g"],
-  ["Huevo",           3,   "unidad"],
-  ["Harina 000",      80,  "g"],
-  ["Salsa de tomate", 400, "g"],
-  ["Muzzarella",      320, "g"],
-  ["Jamon cocido",    120, "g"],
-  ["Aceite girasol",  300, "ml"],
-  ["Sal fina",        10,  "g"]
+  ["Nalga",           200, "g"],
+  ["Pan rallado",     50,  "g"],
+  ["Huevo",           1,   "unidad"],
+  ["Harina 000",      20,  "g"],
+  ["Salsa de tomate", 100, "g"],
+  ["Muzzarella",      80,  "g"],
+  ["Jamon cocido",    30,  "g"],
+  ["Aceite girasol",  75,  "ml"],
+  ["Sal fina",        3,   "g"]
 ])
 
-lasagna = Receta.create!(nombre: "Lasagna", tipo: "plato",
-                         porciones: 6, precio_venta: 9_800)
+lasagna = Receta.create!(nombre: "Lasagna", tipo: "plato", precio_venta: 9_800)
 renglones(lasagna, [
-  ["Harina 000",      400, "g"],
-  ["Huevo",           4,   "unidad"],
-  ["Nalga",           500, "g"],
-  ["Salsa de tomate", 800, "g"],
-  ["Salsa blanca",    600, "ml"],
-  ["Muzzarella",      400, "g"],
-  ["Queso parmesano", 150, "g"],
-  ["Sal fina",        10,  "g"]
+  ["Harina 000",      67,  "g"],
+  ["Huevo",           0.7, "unidad"],
+  ["Nalga",           85,  "g"],
+  ["Salsa de tomate", 135, "g"],
+  ["Salsa blanca",    100, "ml"],
+  ["Muzzarella",      67,  "g"],
+  ["Queso parmesano", 25,  "g"],
+  ["Sal fina",        2,   "g"]
 ])
 
-noquis = Receta.create!(nombre: "Noquis con salsa", tipo: "plato",
-                        porciones: 4, precio_venta: 6_500)
+noquis = Receta.create!(nombre: "Noquis con salsa", tipo: "plato", precio_venta: 6_500)
 renglones(noquis, [
-  ["Pure de papas",   900, "g"],
-  ["Harina 000",      300, "g"],
-  ["Huevo",           2,   "unidad"],
-  ["Salsa de tomate", 500, "g"],
-  ["Queso parmesano", 80,  "g"]
+  ["Pure de papas",   225, "g"],
+  ["Harina 000",      75,  "g"],
+  ["Huevo",           0.5, "unidad"],
+  ["Salsa de tomate", 125, "g"],
+  ["Queso parmesano", 20,  "g"]
 ])
 
 puts "\nListo: #{Insumo.count} insumos, #{PrecioInsumo.count} precios, " \
@@ -139,11 +137,11 @@ def money(x) = ActiveSupport::NumberHelper.number_to_currency(x)
 
 [["ENERO", ENERO], ["HOY", Date.current]].each do |etiqueta, fecha|
   puts "== COSTEO AL #{etiqueta} (#{I18n.l(fecha)}) =="
-  printf("  %-22s %12s %12s %8s %14s\n", "PLATO", "COSTO/PORC", "PVP", "F.COST", "PVP SUGERIDO")
+  printf("  %-22s %12s %12s %8s %14s\n", "PLATO", "COSTO", "PVP", "F.COST", "PVP SUGERIDO")
   Receta.platos.order(:nombre).each do |plato|
     printf("  %-22s %12s %12s %7.1f%% %14s\n",
            plato.nombre,
-           money(plato.costo_por_porcion(fecha: fecha)),
+           money(plato.costo_total(fecha: fecha)),
            money(plato.precio_venta),
            plato.food_cost(fecha: fecha),
            money(plato.precio_sugerido(fecha: fecha)))

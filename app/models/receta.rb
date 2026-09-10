@@ -13,7 +13,6 @@ class Receta < ApplicationRecord
   validates :tipo, inclusion: {
     in: TIPOS, message: "debe ser plato o preparacion"
   }
-  validates :porciones,            numericality: { greater_than: 0 }, allow_nil: true
   validates :rendimiento_cantidad, numericality: { greater_than: 0 }, allow_nil: true
   validates :precio_venta, numericality: { greater_than_or_equal_to: 0 },
                            allow_nil: true
@@ -36,18 +35,12 @@ class Receta < ApplicationRecord
 
   # --- Costeo -------------------------------------------------------
 
-  # Suma de todos sus renglones. includes(:insumable) evita el N+1:
-  # una consulta por tipo en vez de una por renglon.
+  # Un plato ES un plato: esto es lo que cuesta servirlo.
+  # Una preparacion: lo que cuesta la tanda entera.
   def costo_total(fecha: Date.current)
     ingredientes.includes(:insumable)
                 .map { |i| i.costo(fecha: fecha) }
                 .sum(BigDecimal(0))
-  end
-
-  # Solo platos: lo que cuesta un plato servido
-  def costo_por_porcion(fecha: Date.current)
-    return nil unless plato? && porciones.to_i.positive?
-    costo_total(fecha: fecha) / porciones
   end
 
   # Solo preparaciones: lo que cuesta 1 g / 1 ml / 1 unidad de esto
@@ -78,19 +71,19 @@ class Receta < ApplicationRecord
   # En gastronomia se busca entre 25% y 35%.
   def food_cost(fecha: Date.current)
     return nil unless plato? && precio_venta.to_f.positive?
-    (costo_por_porcion(fecha: fecha) / precio_venta) * 100
+    (costo_total(fecha: fecha) / precio_venta) * 100
   end
 
   def margen_bruto(fecha: Date.current)
     return nil unless plato? && precio_venta.present?
-    precio_venta - costo_por_porcion(fecha: fecha)
+    precio_venta - costo_total(fecha: fecha)
   end
 
   # El calculo inverso: a que precio deberia venderse para alcanzar
   # el food cost objetivo.
   def precio_sugerido(objetivo: FOOD_COST_OBJETIVO, fecha: Date.current)
     return nil unless plato?
-    costo_por_porcion(fecha: fecha) * 100 / BigDecimal(objetivo.to_s)
+    costo_total(fecha: fecha) * 100 / BigDecimal(objetivo.to_s)
   end
 
   def costeable?(fecha: Date.current)
@@ -132,19 +125,20 @@ class Receta < ApplicationRecord
 
   private
 
+  # Un plato no exige nada extra: la receta es el plato.
+  # Una preparacion necesita rendimiento para poder dosificarse.
   def coherencia_segun_tipo
-    if plato?
-      errors.add(:porciones, "es obligatorio en un plato") if porciones.blank?
-    elsif preparacion?
-      if rendimiento_cantidad.blank?
-        errors.add(:rendimiento_cantidad, "es obligatorio en una preparacion")
-      end
-      if rendimiento_unidad.blank?
-        errors.add(:rendimiento_unidad, "es obligatorio en una preparacion")
-      elsif unidad_base.nil?
-        errors.add(:rendimiento_unidad,
-          "no es una unidad valida (#{Unidad.todas.join(', ')})")
-      end
+    return unless preparacion?
+
+    if rendimiento_cantidad.blank?
+      errors.add(:rendimiento_cantidad, "es obligatorio en una preparacion")
+    end
+
+    if rendimiento_unidad.blank?
+      errors.add(:rendimiento_unidad, "es obligatorio en una preparacion")
+    elsif unidad_base.nil?
+      errors.add(:rendimiento_unidad,
+        "no es una unidad valida (#{Unidad.todas.join(', ')})")
     end
   end
 end

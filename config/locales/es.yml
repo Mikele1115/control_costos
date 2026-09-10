@@ -41,7 +41,6 @@ es:
       receta:
         nombre: Nombre
         tipo: Tipo
-        porciones: Porciones
         precio_venta: Precio de venta
         rendimiento_cantidad: Rendimiento
         rendimiento_unidad: Unidad de rendimiento

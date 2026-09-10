@@ -40,8 +40,7 @@
       <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
         <tr>
           <th class="px-4 py-3 text-left font-medium">Plato</th>
-          <th class="px-4 py-3 text-right font-medium">Porciones</th>
-          <th class="px-4 py-3 text-right font-medium">Costo / porción</th>
+                    <th class="px-4 py-3 text-right font-medium">Costo</th>
           <th class="px-4 py-3 text-right font-medium">Precio venta</th>
           <th class="px-4 py-3 text-right font-medium">Margen</th>
           <th class="px-4 py-3 text-center font-medium">Food cost</th>
@@ -55,15 +54,14 @@
             <td class="px-4 py-3 font-medium text-slate-900">
               <%= link_to plato.nombre, receta_path(plato), class: "hover:underline" %>
             </td>
-            <td class="px-4 py-3 text-right text-slate-500"><%= plato.porciones %></td>
-            <% if costeable %>
-              <td class="px-4 py-3 text-right"><%= moneda(plato.costo_por_porcion(fecha: @fecha)) %></td>
+                        <% if costeable %>
+              <td class="px-4 py-3 text-right"><%= moneda(plato.costo_total(fecha: @fecha)) %></td>
               <td class="px-4 py-3 text-right text-slate-500"><%= moneda(plato.precio_venta) %></td>
               <td class="px-4 py-3 text-right"><%= moneda(plato.margen_bruto(fecha: @fecha)) %></td>
               <td class="px-4 py-3 text-center"><%= insignia_food_cost(plato.food_cost(fecha: @fecha)) %></td>
               <td class="px-4 py-3 text-right text-slate-500"><%= moneda(plato.precio_sugerido(fecha: @fecha)) %></td>
             <% else %>
-              <td colspan="5" class="px-4 py-3 text-center text-xs text-amber-700">
+              <td colspan="4" class="px-4 py-3 text-center text-xs text-amber-700">
                 falta el precio de algún insumo
               </td>
             <% end %>

@@ -1,24 +1,33 @@
 <% content_for :title, @receta.nombre %>
+<% clases_campo = "block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900" %>
 
-<div class="mb-6">
-  <%= link_to "← Recetas", recetas_path, class: "text-sm text-slate-500 hover:underline" %>
-  <div class="mt-1 flex flex-wrap items-center gap-3">
-    <h1 class="text-2xl font-bold text-slate-900"><%= @receta.nombre %></h1>
-    <span class="rounded-full px-2.5 py-0.5 text-xs font-medium
-                 <%= @receta.plato? ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600' %>">
-      <%= t("costeo.tipos.#{@receta.tipo}") %>
-    </span>
+<div class="mb-6 flex flex-wrap items-start justify-between gap-4">
+  <div>
+    <%= link_to "← Recetas", recetas_path, class: "text-sm text-slate-500 hover:underline" %>
+    <div class="mt-1 flex flex-wrap items-center gap-3">
+      <h1 class="text-2xl font-bold text-slate-900"><%= @receta.nombre %></h1>
+      <span class="rounded-full px-2.5 py-0.5 text-xs font-medium
+                   <%= @receta.plato? ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600' %>">
+        <%= t("costeo.tipos.#{@receta.tipo}") %>
+      </span>
+    </div>
+    <p class="mt-1 text-sm text-slate-500">
+      <% if @receta.plato? %>
+        Un plato<%= " · se vende a #{moneda(@receta.precio_venta)}" if @receta.precio_venta %>
+      <% else %>
+        Rinde <%= cantidad(@receta.rendimiento_cantidad) %> <%= @receta.rendimiento_unidad %>
+        · se dosifica en <%= @receta.unidad_base %>
+      <% end %>
+      · costeo al <%= l(@fecha, format: :long) %>
+    </p>
   </div>
-  <p class="mt-1 text-sm text-slate-500">
-    <% if @receta.plato? %>
-      Rinde <%= pluralize(@receta.porciones, "porción", "porciones") %>
-      <%= "· se vende a #{moneda(@receta.precio_venta)}" if @receta.precio_venta %>
-    <% else %>
-      Rinde <%= cantidad(@receta.rendimiento_cantidad) %> <%= @receta.rendimiento_unidad %>
-      · se dosifica en <%= @receta.unidad_base %>
-    <% end %>
-    · costeo al <%= l(@fecha, format: :long) %>
-  </p>
+  <div class="flex flex-wrap gap-2">
+    <%= link_to "Editar", edit_receta_path(@receta),
+          class: "rounded-md border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50" %>
+    <%= button_to "Eliminar", @receta, method: :delete,
+          form: { data: { turbo_confirm: "¿Eliminar #{@receta.nombre}?" } },
+          class: "cursor-pointer rounded-md border border-rose-300 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-50" %>
+  </div>
 </div>
 
 <% unless @costeable %>
@@ -38,9 +47,9 @@
 
     <% if @receta.plato? %>
       <div class="rounded-lg border border-slate-200 bg-white p-4">
-        <p class="text-xs uppercase tracking-wide text-slate-500">Costo por porción</p>
+        <p class="text-xs uppercase tracking-wide text-slate-500">Margen bruto</p>
         <p class="mt-1 text-xl font-semibold text-slate-900">
-          <%= moneda(@receta.costo_por_porcion(fecha: @fecha)) %>
+          <%= moneda(@receta.margen_bruto(fecha: @fecha)) %>
         </p>
       </div>
       <div class="rounded-lg border border-slate-200 bg-white p-4">
@@ -86,6 +95,7 @@
         <th class="px-4 py-3 text-right font-medium">Cantidad</th>
         <th class="px-4 py-3 text-right font-medium">Costo</th>
         <th class="px-4 py-3 text-right font-medium">% del total</th>
+        <th class="px-4 py-3"></th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100">
@@ -96,9 +106,7 @@
             <%= link_to ing.nombre_insumable, ing.insumable,
                   class: "font-medium text-slate-900 hover:underline" %>
             <% if ing.insumable_type == "Receta" %>
-              <span class="ml-2 rounded bg-sky-100 px-1.5 py-0.5 text-xs text-sky-800">
-                sub-receta
-              </span>
+              <span class="ml-2 rounded bg-sky-100 px-1.5 py-0.5 text-xs text-sky-800">sub-receta</span>
             <% elsif ing.insumable.merma_porcentaje.positive? %>
               <span class="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-900">
                 merma <%= cantidad(ing.insumable.merma_porcentaje) %> %
@@ -122,8 +130,44 @@
               <span class="text-slate-300">—</span>
             <% end %>
           </td>
+          <td class="px-4 py-3 text-right">
+            <%= button_to "Quitar", receta_ingrediente_path(@receta, ing), method: :delete,
+                  form: { data: { turbo_confirm: "¿Quitar #{ing.nombre_insumable}?" } },
+                  class: "cursor-pointer text-xs text-slate-400 hover:text-rose-600 hover:underline" %>
+          </td>
         </tr>
       <% end %>
     </tbody>
   </table>
+</div>
+
+<div class="mt-6 rounded-lg border border-slate-200 bg-white p-4">
+  <h3 class="mb-3 text-sm font-medium text-slate-700">Agregar ingrediente</h3>
+
+  <%= form_with model: [@receta, @ingrediente],
+        class: "flex flex-wrap items-end gap-3" do |f| %>
+    <div class="min-w-56 flex-1">
+      <label class="mb-1 block text-xs font-medium text-slate-600">Insumo o preparación</label>
+      <%= select_tag "ingrediente[insumable]",
+            grouped_options_for_select(@opciones),
+            include_blank: "Elegir...", class: clases_campo %>
+    </div>
+    <div class="w-28">
+      <%= f.label :cantidad, class: "mb-1 block text-xs font-medium text-slate-600" %>
+      <%= f.number_field :cantidad, step: "0.0001", min: 0, class: clases_campo %>
+    </div>
+    <div class="w-32">
+      <%= f.label :unidad, class: "mb-1 block text-xs font-medium text-slate-600" %>
+      <%= f.select :unidad, Unidad.todas.map { |u| [t("costeo.unidades.#{u}"), u] },
+            {}, class: clases_campo %>
+    </div>
+    <%= f.submit "Agregar",
+          class: "cursor-pointer rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
+  <% end %>
+
+  <p class="mt-2 text-xs text-slate-500">
+    El desplegable no ofrece preparaciones que generarían un ciclo.
+    Si la unidad no corresponde a la magnitud del ingrediente, el sistema
+    lo rechazará al guardar.
+  </p>
 </div>

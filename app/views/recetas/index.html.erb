@@ -10,15 +10,19 @@
     </p>
   </div>
 
-  <%= form_with url: recetas_path, method: :get, class: "flex items-end gap-2" do |f| %>
-    <div>
-      <%= f.label :fecha, "Ver costos a la fecha", class: "block text-xs font-medium text-slate-600" %>
-      <%= f.date_field :fecha, value: @fecha,
-            class: "mt-1 rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm" %>
-    </div>
-    <%= f.submit "Aplicar",
-          class: "cursor-pointer rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
-  <% end %>
+  <div class="flex items-end gap-3">
+    <%= form_with url: recetas_path, method: :get, class: "flex items-end gap-2" do |f| %>
+      <div>
+        <%= f.label :fecha, "Ver costos a la fecha", class: "block text-xs font-medium text-slate-600" %>
+        <%= f.date_field :fecha, value: @fecha,
+              class: "mt-1 rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm" %>
+      </div>
+      <%= f.submit "Aplicar",
+            class: "cursor-pointer rounded-md border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50" %>
+    <% end %>
+    <%= link_to "Nueva receta", new_receta_path,
+          class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
+  </div>
 </div>
 
 <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
@@ -28,8 +32,8 @@
         <th class="px-4 py-3 text-left font-medium">Receta</th>
         <th class="px-4 py-3 text-left font-medium">Tipo</th>
         <th class="px-4 py-3 text-right font-medium">Rinde</th>
-        <th class="px-4 py-3 text-right font-medium">Costo total</th>
-        <th class="px-4 py-3 text-right font-medium">Unitario</th>
+        <th class="px-4 py-3 text-right font-medium">Costo</th>
+        <th class="px-4 py-3 text-right font-medium">Precio venta</th>
         <th class="px-4 py-3 text-center font-medium">Food cost</th>
       </tr>
     </thead>
@@ -48,21 +52,22 @@
           </td>
           <td class="px-4 py-3 text-right text-slate-500">
             <% if receta.plato? %>
-              <%= pluralize(receta.porciones, "porción", "porciones") %>
+              un plato
             <% else %>
               <%= cantidad(receta.rendimiento_cantidad) %> <%= receta.rendimiento_unidad %>
             <% end %>
           </td>
           <% if costeable %>
-            <td class="px-4 py-3 text-right"><%= moneda(receta.costo_total(fecha: @fecha)) %></td>
-            <td class="px-4 py-3 text-right text-slate-500">
-              <% if receta.plato? %>
-                <%= moneda(receta.costo_por_porcion(fecha: @fecha)) %>
-                <span class="text-xs text-slate-400">/ porción</span>
-              <% else %>
-                <%= moneda(receta.costo_por_unidad_base(fecha: @fecha)) %>
-                <span class="text-xs text-slate-400">/ <%= receta.unidad_base %></span>
+            <td class="px-4 py-3 text-right">
+              <%= moneda(receta.costo_total(fecha: @fecha)) %>
+              <% unless receta.plato? %>
+                <span class="block text-xs text-slate-400">
+                  <%= moneda(receta.costo_por_unidad_base(fecha: @fecha)) %> / <%= receta.unidad_base %>
+                </span>
               <% end %>
+            </td>
+            <td class="px-4 py-3 text-right text-slate-500">
+              <%= receta.plato? ? moneda(receta.precio_venta) : "—" %>
             </td>
             <td class="px-4 py-3 text-center">
               <%= receta.plato? ? insignia_food_cost(receta.food_cost(fecha: @fecha)) : "—" %>

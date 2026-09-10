@@ -82,14 +82,14 @@ class InsumosFlowTest < ActionDispatch::IntegrationTest
   end
 
   test "el panel calcula el food cost de un plato" do
-    plato = crear_plato(nombre: "Tortilla", porciones: 4, precio_venta: 1000)
+    plato = crear_plato(nombre: "Tortilla", precio_venta: 4000)
     queso = insumo_con_precio(nombre: "Queso", precio: 10_000, cantidad: 1, unidad: "kg")
     agregar(plato, queso, 100, "g")   # 1000 total -> 250/porcion -> 25%
 
     get root_path
     assert_response :success
     assert_includes response.body, "Tortilla"
-    assert_includes response.body, "$250,00"
+    assert_includes response.body, "$1.000,00"
     assert_includes response.body, "25,0 %"
   end
 end

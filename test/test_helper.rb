@@ -34,11 +34,10 @@ module Constructores
     insumo
   end
 
-  def crear_plato(nombre: nil, porciones: 4, precio_venta: nil)
+  def crear_plato(nombre: nil, precio_venta: nil)
     Receta.create!(
       nombre: nombre || "Plato #{SecureRandom.hex(4)}",
       tipo: "plato",
-      porciones: porciones,
       precio_venta: precio_venta
     )
   end

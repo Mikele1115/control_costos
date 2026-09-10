@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_08_211242) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_10_033000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,17 +59,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_211242) do
   create_table "recetas", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "nombre", null: false
-    t.integer "porciones"
     t.decimal "precio_venta", precision: 12, scale: 2
     t.decimal "rendimiento_cantidad", precision: 12, scale: 4
     t.string "rendimiento_unidad"
     t.string "tipo", null: false
     t.datetime "updated_at", null: false
     t.index ["nombre"], name: "index_recetas_on_nombre", unique: true
-    t.check_constraint "porciones IS NULL OR porciones > 0", name: "porciones_positivas"
     t.check_constraint "precio_venta IS NULL OR precio_venta >= 0::numeric", name: "precio_venta_no_negativo"
     t.check_constraint "rendimiento_cantidad IS NULL OR rendimiento_cantidad > 0::numeric", name: "rendimiento_positivo"
-    t.check_constraint "tipo::text = 'plato'::text AND porciones IS NOT NULL OR tipo::text = 'preparacion'::text AND rendimiento_cantidad IS NOT NULL AND rendimiento_unidad IS NOT NULL", name: "rendimiento_segun_tipo"
+    t.check_constraint "tipo::text = 'plato'::text OR tipo::text = 'preparacion'::text AND rendimiento_cantidad IS NOT NULL AND rendimiento_unidad IS NOT NULL", name: "rendimiento_segun_tipo"
     t.check_constraint "tipo::text = ANY (ARRAY['plato'::character varying, 'preparacion'::character varying]::text[])", name: "tipo_valido"
   end
 

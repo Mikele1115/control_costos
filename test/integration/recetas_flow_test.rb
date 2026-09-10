@@ -11,7 +11,7 @@ class RecetasFlowTest < ActionDispatch::IntegrationTest
     agregar(@salsa, @queso, 100, "g")
 
     # 200 (salsa) + 500 (queso) = 700 -> 175/porcion -> 17,5 % de food cost
-    @plato = crear_plato(nombre: "Milanesa", porciones: 4, precio_venta: 1000)
+    @plato = crear_plato(nombre: "Milanesa", precio_venta: 2800)
     agregar(@plato, @salsa, 200, "g")
     agregar(@plato, @queso, 50, "g")
   end
@@ -29,8 +29,7 @@ class RecetasFlowTest < ActionDispatch::IntegrationTest
     get receta_path(@plato)
     assert_response :success
     assert_includes response.body, "$700,00"   # costo total
-    assert_includes response.body, "$175,00"   # por porcion
-    assert_includes response.body, "17,5 %"    # food cost
+    assert_includes response.body, "25,0 %"    # food cost: 700 sobre 2800
   end
 
   test "el desglose reparte el costo entre los ingredientes" do
@@ -66,7 +65,7 @@ class RecetasFlowTest < ActionDispatch::IntegrationTest
     get receta_path(@plato)
     assert_response :success
     assert_includes response.body, "No se puede costear"
-    assert_not_includes response.body, "$175,00"
+    assert_not_includes response.body, "$700,00"
   end
 
   test "una fecha anterior al primer precio deja la receta sin costear" do
