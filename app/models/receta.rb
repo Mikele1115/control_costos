@@ -2,6 +2,10 @@ class Receta < ApplicationRecord
   class NoDosificable < StandardError; end
 
   TIPOS = %w[plato preparacion].freeze
+
+  # Secciones de la carta, en el orden en que se muestran.
+  # Solo aplican a los platos: una preparacion no se vende.
+  CATEGORIAS = %w[principal compartir postre bebestible].freeze
   FOOD_COST_OBJETIVO = 30 # % de referencia en gastronomia
 
   has_many :ingredientes, dependent: :destroy
@@ -17,13 +21,23 @@ class Receta < ApplicationRecord
   validates :precio_venta, numericality: { greater_than_or_equal_to: 0 },
                            allow_nil: true
 
+  before_validation :normalizar_categoria
+
+  validates :categoria, inclusion: { in: CATEGORIAS }, allow_nil: true
+
   validate :coherencia_segun_tipo
+  validate :solo_los_platos_tienen_categoria
 
   scope :platos,        -> { where(tipo: "plato") }
   scope :preparaciones, -> { where(tipo: "preparacion") }
 
   def plato?       = tipo == "plato"
   def preparacion? = tipo == "preparacion"
+
+  def categoria_etiqueta
+    return "Sin categoría" if categoria.blank?
+    I18n.t("costeo.categorias.#{categoria}")
+  end
 
   # --- Unidades -----------------------------------------------------
 
@@ -213,6 +227,17 @@ class Receta < ApplicationRecord
 
   # Un plato no exige nada extra: la receta es el plato.
   # Una preparacion necesita rendimiento para poder dosificarse.
+  # Un select con include_blank manda "" y no nil, y la restriccion
+  # de la base solo admite NULL o un valor de la lista.
+  def normalizar_categoria
+    self.categoria = nil if categoria.blank?
+  end
+
+  def solo_los_platos_tienen_categoria
+    return if categoria.blank? || plato?
+    errors.add(:categoria, "solo corresponde a los platos")
+  end
+
   def coherencia_segun_tipo
     return unless preparacion?
 

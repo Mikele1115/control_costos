@@ -33,6 +33,13 @@
 
   <div data-tipo-receta-target="plato" class="space-y-5 rounded-lg bg-slate-50 p-4">
     <div>
+      <%= f.label :categoria, "Sección de la carta", class: "block text-sm font-medium text-slate-700" %>
+      <%= f.select :categoria,
+            Receta::CATEGORIAS.map { |c| [t("costeo.categorias.#{c}"), c] },
+            { include_blank: "Sin clasificar" }, class: clases_campo %>
+    </div>
+
+    <div>
       <%= f.label :precio_venta, "Precio de venta", class: "block text-sm font-medium text-slate-700" %>
       <%= f.number_field :precio_venta, step: "0.01", min: 0, class: clases_campo %>
       <p class="mt-1 text-xs text-slate-500">Necesario para calcular el food cost.</p>

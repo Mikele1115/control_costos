@@ -35,7 +35,9 @@ INSUMOS = {
   "Aceite de oliva"  => ["ml",      0, [[ENERO, 18_000,  1, "l"]]],
   "Aceite girasol"   => ["ml",      0, [[ENERO,  9_000,  5, "l"], [JUNIO, 11_500,  5, "l"]]],
   "Vino blanco"      => ["ml",      0, [[ENERO,  3_500,  1, "l"]]],
-  "Huevo"            => ["unidad",  0, [[ENERO,  4_800,  2, "docena"], [JUNIO, 5_600, 2, "docena"]]]
+  "Huevo"            => ["unidad",  0, [[ENERO,  4_800,  2, "docena"], [JUNIO, 5_600, 2, "docena"]]],
+  "Pan baguette"     => ["unidad",  0, [[ENERO,  1_200,  1, "unidad"]]],
+  "Limon"            => ["g",      40, [[ENERO,  2_500,  1, "kg"]]]
 }
 
 puts "Cargando insumos y precios..."
@@ -95,7 +97,8 @@ renglones(pure, [
 # efectivamente en el que se sirve.
 puts "Cargando platos..."
 
-napo = Receta.create!(nombre: "Milanesa napolitana", tipo: "plato", precio_venta: 8_500)
+napo = Receta.create!(nombre: "Milanesa napolitana", tipo: "plato",
+                      categoria: "principal", precio_venta: 8_500)
 renglones(napo, [
   ["Nalga",           200, "g"],
   ["Pan rallado",     50,  "g"],
@@ -108,7 +111,8 @@ renglones(napo, [
   ["Sal fina",        3,   "g"]
 ])
 
-lasagna = Receta.create!(nombre: "Lasagna", tipo: "plato", precio_venta: 9_800)
+lasagna = Receta.create!(nombre: "Lasagna", tipo: "plato",
+                         categoria: "principal", precio_venta: 9_800)
 renglones(lasagna, [
   ["Harina 000",      67,  "g"],
   ["Huevo",           0.7, "unidad"],
@@ -120,13 +124,38 @@ renglones(lasagna, [
   ["Sal fina",        2,   "g"]
 ])
 
-noquis = Receta.create!(nombre: "Noquis con salsa", tipo: "plato", precio_venta: 6_500)
+noquis = Receta.create!(nombre: "Noquis con salsa", tipo: "plato",
+                        categoria: "principal", precio_venta: 6_500)
 renglones(noquis, [
   ["Pure de papas",   225, "g"],
   ["Harina 000",      75,  "g"],
   ["Huevo",           0.5, "unidad"],
   ["Salsa de tomate", 125, "g"],
   ["Queso parmesano", 20,  "g"]
+])
+
+tabla = Receta.create!(nombre: "Tabla para picar", tipo: "plato",
+                       categoria: "compartir", precio_venta: 9_500)
+renglones(tabla, [
+  ["Jamon cocido",    80,  "g"],
+  ["Muzzarella",      100, "g"],
+  ["Pan baguette",    0.5, "unidad"],
+  ["Aceite de oliva", 20,  "ml"]
+])
+
+flan = Receta.create!(nombre: "Flan casero", tipo: "plato",
+                      categoria: "postre", precio_venta: 3_200)
+renglones(flan, [
+  ["Leche entera", 200, "ml"],
+  ["Huevo",        2,   "unidad"],
+  ["Azucar",       60,  "g"]
+])
+
+limonada = Receta.create!(nombre: "Limonada", tipo: "plato",
+                          categoria: "bebestible", precio_venta: 2_800)
+renglones(limonada, [
+  ["Limon",  150, "g"],
+  ["Azucar", 40,  "g"]
 ])
 
 puts "\nListo: #{Insumo.count} insumos, #{PrecioInsumo.count} precios, " \

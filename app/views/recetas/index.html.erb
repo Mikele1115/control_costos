@@ -31,6 +31,7 @@
       <tr>
         <th class="px-4 py-3 text-left font-medium">Receta</th>
         <th class="px-4 py-3 text-left font-medium">Tipo</th>
+        <th class="px-4 py-3 text-left font-medium">Sección</th>
         <th class="px-4 py-3 text-right font-medium">Rinde</th>
         <th class="px-4 py-3 text-right font-medium">Costo</th>
         <th class="px-4 py-3 text-right font-medium">Precio venta</th>
@@ -49,6 +50,9 @@
                          <%= receta.plato? ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600' %>">
               <%= t("costeo.tipos.#{receta.tipo}") %>
             </span>
+          </td>
+          <td class="px-4 py-3 text-slate-500">
+            <%= receta.plato? ? receta.categoria_etiqueta : "—" %>
           </td>
           <td class="px-4 py-3 text-right text-slate-500">
             <% if receta.plato? %>

@@ -41,6 +41,7 @@ es:
       receta:
         nombre: Nombre
         tipo: Tipo
+        categoria: Sección de la carta
         precio_venta: Precio de venta
         rendimiento_cantidad: Rendimiento
         rendimiento_unidad: Unidad de rendimiento
@@ -76,6 +77,11 @@ es:
     tipos:
       plato: Plato
       preparacion: Preparación
+    categorias:
+      principal: Platos principales
+      compartir: Para compartir
+      postre: Postres
+      bebestible: Bebestibles
     unidades:
       g: gramos
       kg: kilogramos

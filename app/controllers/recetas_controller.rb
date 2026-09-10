@@ -61,7 +61,7 @@ class RecetasController < ApplicationController
   end
 
   def receta_params
-    params.expect(receta: %i[nombre tipo precio_venta
+    params.expect(receta: %i[nombre tipo categoria precio_venta
                              rendimiento_cantidad rendimiento_unidad])
   end
 

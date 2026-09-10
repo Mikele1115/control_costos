@@ -43,6 +43,7 @@
             <%= insignia_food_cost(alerta[:food_cost]) %>
             <%= link_to alerta[:plato].nombre, alerta[:plato],
                   class: "text-sm font-medium text-slate-900 hover:underline" %>
+            <span class="text-xs text-slate-400"><%= alerta[:plato].categoria_etiqueta %></span>
             <% if alerta[:banda] == :perdida %>
               <span class="rounded bg-rose-600 px-1.5 py-0.5 text-xs font-semibold text-white">
                 se vende bajo costo
@@ -77,45 +78,52 @@
   </div>
 <% end %>
 
-<section class="mb-10">
-  <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Platos</h2>
+<% @grupos.each do |categoria, platos| %>
+  <section class="mb-8">
+    <div class="mb-3 flex items-baseline gap-3">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        <%= categoria ? t("costeo.categorias.#{categoria}") : "Sin clasificar" %>
+      </h2>
+      <span class="text-xs text-slate-400"><%= pluralize(platos.size, "plato") %></span>
+    </div>
 
-  <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-    <table class="min-w-full divide-y divide-slate-200 text-sm">
-      <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-        <tr>
-          <th class="px-4 py-3 text-left font-medium">Plato</th>
-          <th class="px-4 py-3 text-right font-medium">Costo</th>
-          <th class="px-4 py-3 text-right font-medium">Precio venta</th>
-          <th class="px-4 py-3 text-right font-medium">Margen</th>
-          <th class="px-4 py-3 text-center font-medium">Food cost</th>
-          <th class="px-4 py-3 text-right font-medium">PVP sugerido</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-slate-100">
-        <% @platos.each do |plato| %>
-          <% costeable = plato.costeable?(fecha: @fecha) %>
-          <tr class="hover:bg-slate-50">
-            <td class="px-4 py-3 font-medium text-slate-900">
-              <%= link_to plato.nombre, receta_path(plato), class: "hover:underline" %>
-            </td>
-            <% if costeable %>
-              <td class="px-4 py-3 text-right"><%= moneda(plato.costo_total(fecha: @fecha)) %></td>
-              <td class="px-4 py-3 text-right text-slate-500"><%= moneda(plato.precio_venta) %></td>
-              <td class="px-4 py-3 text-right"><%= moneda(plato.margen_bruto(fecha: @fecha)) %></td>
-              <td class="px-4 py-3 text-center"><%= insignia_food_cost(plato.food_cost(fecha: @fecha)) %></td>
-              <td class="px-4 py-3 text-right text-slate-500"><%= moneda(plato.precio_sugerido(fecha: @fecha)) %></td>
-            <% else %>
-              <td colspan="5" class="px-4 py-3 text-center text-xs text-amber-700">
-                falta el precio de algún insumo
-              </td>
-            <% end %>
+    <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+          <tr>
+            <th class="px-4 py-3 text-left font-medium">Plato</th>
+            <th class="px-4 py-3 text-right font-medium">Costo</th>
+            <th class="px-4 py-3 text-right font-medium">Precio venta</th>
+            <th class="px-4 py-3 text-right font-medium">Margen</th>
+            <th class="px-4 py-3 text-center font-medium">Food cost</th>
+            <th class="px-4 py-3 text-right font-medium">PVP sugerido</th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
-</section>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <% platos.each do |plato| %>
+            <% costeable = plato.costeable?(fecha: @fecha) %>
+            <tr class="hover:bg-slate-50">
+              <td class="px-4 py-3 font-medium text-slate-900">
+                <%= link_to plato.nombre, receta_path(plato), class: "hover:underline" %>
+              </td>
+              <% if costeable %>
+                <td class="px-4 py-3 text-right"><%= moneda(plato.costo_total(fecha: @fecha)) %></td>
+                <td class="px-4 py-3 text-right text-slate-500"><%= moneda(plato.precio_venta) %></td>
+                <td class="px-4 py-3 text-right"><%= moneda(plato.margen_bruto(fecha: @fecha)) %></td>
+                <td class="px-4 py-3 text-center"><%= insignia_food_cost(plato.food_cost(fecha: @fecha)) %></td>
+                <td class="px-4 py-3 text-right text-slate-500"><%= moneda(plato.precio_sugerido(fecha: @fecha)) %></td>
+              <% else %>
+                <td colspan="5" class="px-4 py-3 text-center text-xs text-amber-700">
+                  falta el precio de algún insumo
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<% end %>
 
 <section>
   <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">Preparaciones</h2>
