@@ -1,0 +1,129 @@
+<% content_for :title, @receta.nombre %>
+
+<div class="mb-6">
+  <%= link_to "← Recetas", recetas_path, class: "text-sm text-slate-500 hover:underline" %>
+  <div class="mt-1 flex flex-wrap items-center gap-3">
+    <h1 class="text-2xl font-bold text-slate-900"><%= @receta.nombre %></h1>
+    <span class="rounded-full px-2.5 py-0.5 text-xs font-medium
+                 <%= @receta.plato? ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600' %>">
+      <%= t("costeo.tipos.#{@receta.tipo}") %>
+    </span>
+  </div>
+  <p class="mt-1 text-sm text-slate-500">
+    <% if @receta.plato? %>
+      Rinde <%= pluralize(@receta.porciones, "porción", "porciones") %>
+      <%= "· se vende a #{moneda(@receta.precio_venta)}" if @receta.precio_venta %>
+    <% else %>
+      Rinde <%= cantidad(@receta.rendimiento_cantidad) %> <%= @receta.rendimiento_unidad %>
+      · se dosifica en <%= @receta.unidad_base %>
+    <% end %>
+    · costeo al <%= l(@fecha, format: :long) %>
+  </p>
+</div>
+
+<% unless @costeable %>
+  <div class="mb-8 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+    No se puede costear: falta el precio de algún insumo de esta receta
+    (o de una de sus preparaciones).
+    <%= link_to "Ver cuáles", root_path, class: "font-medium underline" %>
+  </div>
+<% else %>
+  <% total = @receta.costo_total(fecha: @fecha) %>
+
+  <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="rounded-lg border border-slate-200 bg-white p-4">
+      <p class="text-xs uppercase tracking-wide text-slate-500">Costo total</p>
+      <p class="mt-1 text-xl font-semibold text-slate-900"><%= moneda(total) %></p>
+    </div>
+
+    <% if @receta.plato? %>
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Costo por porción</p>
+        <p class="mt-1 text-xl font-semibold text-slate-900">
+          <%= moneda(@receta.costo_por_porcion(fecha: @fecha)) %>
+        </p>
+      </div>
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Food cost</p>
+        <p class="mt-2"><%= insignia_food_cost(@receta.food_cost(fecha: @fecha)) %></p>
+        <p class="mt-1 text-xs text-slate-500">
+          <%= etiqueta_food_cost(@receta.food_cost(fecha: @fecha)) %>
+        </p>
+      </div>
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Precio sugerido</p>
+        <p class="mt-1 text-xl font-semibold text-slate-900">
+          <%= moneda(@receta.precio_sugerido(fecha: @fecha)) %>
+        </p>
+        <p class="text-xs text-slate-500">para un food cost del <%= Receta::FOOD_COST_OBJETIVO %> %</p>
+      </div>
+    <% else %>
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Costo unitario</p>
+        <p class="mt-1 text-xl font-semibold text-slate-900">
+          <%= moneda(@receta.costo_por_unidad_base(fecha: @fecha)) %>
+          <span class="text-sm font-normal text-slate-400">/ <%= @receta.unidad_base %></span>
+        </p>
+      </div>
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <p class="text-xs uppercase tracking-wide text-slate-500">Se usa en</p>
+        <p class="mt-1 text-xl font-semibold text-slate-900"><%= @receta.usos.count %></p>
+        <p class="text-xs text-slate-500">recetas</p>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+  Ingredientes (<%= @ingredientes.size %>)
+</h2>
+
+<div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+  <table class="min-w-full divide-y divide-slate-200 text-sm">
+    <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+      <tr>
+        <th class="px-4 py-3 text-left font-medium">Ingrediente</th>
+        <th class="px-4 py-3 text-right font-medium">Cantidad</th>
+        <th class="px-4 py-3 text-right font-medium">Costo</th>
+        <th class="px-4 py-3 text-right font-medium">% del total</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      <% @ingredientes.each do |ing| %>
+        <% costo = @costeable ? ing.costo(fecha: @fecha) : nil %>
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3">
+            <%= link_to ing.nombre_insumable, ing.insumable,
+                  class: "font-medium text-slate-900 hover:underline" %>
+            <% if ing.insumable_type == "Receta" %>
+              <span class="ml-2 rounded bg-sky-100 px-1.5 py-0.5 text-xs text-sky-800">
+                sub-receta
+              </span>
+            <% elsif ing.insumable.merma_porcentaje.positive? %>
+              <span class="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-900">
+                merma <%= cantidad(ing.insumable.merma_porcentaje) %> %
+              </span>
+            <% end %>
+          </td>
+          <td class="px-4 py-3 text-right text-slate-500">
+            <%= cantidad(ing.cantidad, 4) %> <%= ing.unidad %>
+          </td>
+          <td class="px-4 py-3 text-right"><%= moneda(costo) %></td>
+          <td class="px-4 py-3 text-right">
+            <% if costo && total&.positive? %>
+              <% porcentaje = (costo / total * 100) %>
+              <div class="flex items-center justify-end gap-2">
+                <div class="h-1.5 w-16 overflow-hidden rounded-full bg-slate-100">
+                  <div class="h-full bg-slate-400" style="width: <%= porcentaje.to_f.round %>%"></div>
+                </div>
+                <span class="w-12 text-xs text-slate-500"><%= cantidad(porcentaje, 1) %> %</span>
+              </div>
+            <% else %>
+              <span class="text-slate-300">—</span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
