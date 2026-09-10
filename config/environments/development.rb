@@ -1,6 +1,12 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  # Permite exponer el servidor de desarrollo por un tunel publico
+  # para ensenar la aplicacion. Sin esto Rails responde
+  # "Blocked hosts" a cualquier dominio que no sea localhost.
+  config.hosts << /.*\.trycloudflare\.com/
+  config.hosts << /.*\.ngrok-free\.app/
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Make code changes take effect immediately without server restart.
