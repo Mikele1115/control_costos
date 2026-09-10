@@ -4,6 +4,17 @@
 <div class="mx-auto max-w-sm">
   <h1 class="mb-6 text-2xl font-bold text-slate-900"><%= t("autenticacion.titulo_login") %></h1>
 
+<%# Solo en la demostracion publica: se activa con DEMO=1. %>
+<% if ENV["DEMO"].present? %>
+  <div class="mb-4 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm">
+    <p class="font-medium text-sky-900">Esto es una demostración</p>
+    <p class="mt-1 text-sky-800">
+      Entrá con <strong>demo@lasplendida.cl</strong> y la contraseña
+      <strong>demo1234</strong>. Los datos se reinician cada tanto.
+    </p>
+  </div>
+<% end %>
+
   <div class="rounded-lg border border-slate-200 bg-white p-6">
     <%= form_with url: session_url, class: "space-y-5" do |f| %>
       <div>

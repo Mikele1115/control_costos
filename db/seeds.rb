@@ -1,6 +1,16 @@
 # Datos de ejemplo. Se puede ejecutar las veces que haga falta:
 # borra todo y reconstruye desde cero.
-abort("ABORTADO: los datos de ejemplo no van en produccion") if Rails.env.production?
+# En produccion solo se siembra a proposito, no por accidente:
+#   PERMITIR_SEED=1 bin/rails db:seed
+if Rails.env.production? && ENV["PERMITIR_SEED"].blank?
+  abort("ABORTADO: en produccion hay que pasar PERMITIR_SEED=1")
+end
+
+USUARIO_DEMO = "demo@lasplendida.cl"
+CLAVE_DEMO   = "demo1234"
+
+puts "Cargando usuario de demostracion..."
+User.find_or_initialize_by(email_address: USUARIO_DEMO).update!(password: CLAVE_DEMO)
 
 ENERO = Date.new(2026, 1, 15)
 JUNIO = Date.new(2026, 6, 1)
