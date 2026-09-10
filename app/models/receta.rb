@@ -41,6 +41,38 @@ class Receta < ApplicationRecord
     Unidad.compatibles_con(unidad_base)
   end
 
+  # --- Duplicacion --------------------------------------------------
+
+  # Crea una copia con los mismos ingredientes.
+  #
+  # Copia superficial a proposito: si un renglon apunta a una
+  # preparacion, la copia apunta a LA MISMA. Estas probando una
+  # variante del plato, no clonando el recetario entero.
+  #
+  # La copia tampoco hereda `usos`: es una receta nueva que todavia
+  # no usa nadie.
+  def duplicar
+    self.class.transaction do
+      copia = self.class.create!(
+        nombre:               nombre_para_copia,
+        tipo:                 tipo,
+        precio_venta:         precio_venta,
+        rendimiento_cantidad: rendimiento_cantidad,
+        rendimiento_unidad:   rendimiento_unidad
+      )
+
+      ingredientes.each do |renglon|
+        copia.ingredientes.create!(
+          insumable: renglon.insumable,
+          cantidad:  renglon.cantidad,
+          unidad:    renglon.unidad
+        )
+      end
+
+      copia
+    end
+  end
+
   # --- Costeo -------------------------------------------------------
 
   # Un plato ES un plato: esto es lo que cuesta servirlo.
@@ -97,7 +129,11 @@ class Receta < ApplicationRecord
   def costeable?(fecha: Date.current)
     costo_total(fecha: fecha)
     true
-  rescue Insumo::SinPrecio
+  # Ambas excepciones significan lo mismo para quien pregunta: esta
+  # receta no se puede costear ahora. Unidad::Incompatible solo puede
+  # darse con datos corruptos (las validaciones lo impiden), pero la
+  # ficha no deberia caerse por eso.
+  rescue Insumo::SinPrecio, Unidad::Incompatible
     false
   end
 
@@ -132,6 +168,21 @@ class Receta < ApplicationRecord
   end
 
   private
+
+  # "Milanesa" -> "Milanesa (copia)" -> "Milanesa (copia 2)" ...
+  # Duplicar una copia no encadena sufijos.
+  def nombre_para_copia
+    base = nombre.split(" (copia").first
+    candidato = "#{base} (copia)"
+    numero = 2
+
+    while self.class.where("LOWER(nombre) = ?", candidato.downcase).exists?
+      candidato = "#{base} (copia #{numero})"
+      numero += 1
+    end
+
+    candidato
+  end
 
   # Un plato no exige nada extra: la receta es el plato.
   # Una preparacion necesita rendimiento para poder dosificarse.

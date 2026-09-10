@@ -1,5 +1,5 @@
 class RecetasController < ApplicationController
-  before_action :set_receta, only: %i[show edit update destroy]
+  before_action :set_receta, only: %i[show edit update destroy duplicar]
 
   def index
     @fecha   = fecha_solicitada
@@ -12,6 +12,13 @@ class RecetasController < ApplicationController
     @costeable    = @receta.costeable?(fecha: @fecha)
     @ingrediente  = @receta.ingredientes.new
     @opciones     = opciones_insumables
+  end
+
+  def duplicar
+    copia = @receta.duplicar
+    redirect_to copia, notice: "Copia creada. Ajustá lo que necesites."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to @receta, alert: "No se pudo duplicar: #{e.message}"
   end
 
   def new
