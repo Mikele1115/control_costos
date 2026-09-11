@@ -107,4 +107,41 @@ class CruceDeUmbralTest < ActiveSupport::TestCase
     cruce = cruces_de(precio).first
     assert_equal plato.precio_sugerido(fecha: JUNIO), cruce.sugerido
   end
+
+  test "con un umbral propio de 50 ignora un plato que solo llego a 42" do
+    plato_con(nombre: "Sano", gramos: 30, precio_venta: 1000)
+    precio = subir_queso_a(14_000)
+
+    assert_empty CruceDeUmbral.new(precio, umbral: 50).cruces
+    assert_equal 1, CruceDeUmbral.new(precio).cruces.size, "con el umbral de fabrica si avisa"
+  end
+
+  test "con un umbral propio de 50 avisa cuando lo cruza" do
+    plato_con(nombre: "Sano", gramos: 30, precio_venta: 1000)
+    precio = subir_queso_a(18_000)   # -> 54 %
+
+    assert_equal 1, CruceDeUmbral.new(precio, umbral: 50).cruces.size
+  end
+
+  # Este es el caso que motivo comparar bandas: nunca cruza el 35 %
+  # porque ya estaba muy por encima, y es el aviso que mas urge.
+  test "avisa del salto a vender bajo costo aunque el umbral ya estuviera cruzado" do
+    plato_con(nombre: "Milanesa", gramos: 73, precio_venta: 1000)
+    precio = subir_queso_a(17_900)   # 73 % -> 130,7 %
+
+    cruce = cruces_de(precio).first
+    assert_equal :critico, cruce.banda_antes
+    assert_equal :perdida, cruce.banda_despues
+  end
+
+  # El borde exacto. "Desde 42 %" incluye al plato que queda en 42,00,
+  # igual que Receta.banda_para incluye el 35 en la banda alta.
+  test "un plato que cae justo en el umbral tambien avisa" do
+    plato_con(nombre: "Justo", gramos: 30, precio_venta: 1000)
+    precio = subir_queso_a(14_000)   # exactamente 42,00 %
+
+    cruce = CruceDeUmbral.new(precio, umbral: 42).cruces.first
+    assert_not_nil cruce, "42,00 % no puede quedar fuera de un umbral de 42"
+    assert_equal BigDecimal(42), cruce.despues
+  end
 end

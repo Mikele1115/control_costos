@@ -10,6 +10,13 @@ require_relative "test_helpers/session_test_helper"
 # que el sistema deriva (como costo_por_unidad_base), y acabariamos
 # comprobando nuestra propia aritmetica en vez de la del codigo.
 module Constructores
+  def configurar_avisos(correo: "cocina@lasplendida.cl", umbral: 35)
+    Destinatario.find_or_create_by!(correo: correo) if correo
+    Configuracion.actual.tap do |configuracion|
+      configuracion.update!(avisos_activos: true, umbral_aviso: umbral)
+    end
+  end
+
   def crear_usuario(email: nil, password: "secreto123")
     User.create!(
       email_address: email || "usuario#{SecureRandom.hex(4)}@ejemplo.test",

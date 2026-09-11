@@ -14,6 +14,7 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   # Las palabras terminadas en consonante siguen tomando "s" a la
   # inglesa: Proveedor daria la tabla "proveedors". Se declara aparte.
   inflect.irregular "proveedor", "proveedores"
+  inflect.irregular "configuracion", "configuraciones"
 end
 
 # --- Castellano: para los textos de las vistas ----------------------

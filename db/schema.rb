@@ -10,10 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_10_174757) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_11_012053) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "unaccent"
+
+  create_table "configuraciones", force: :cascade do |t|
+    t.boolean "avisos_activos", default: false, null: false
+    t.datetime "created_at", null: false
+    t.decimal "umbral_aviso", precision: 5, scale: 2, default: "35.0", null: false
+    t.boolean "unica", default: true, null: false
+    t.datetime "updated_at", null: false
+    t.index ["unica"], name: "index_configuraciones_on_unica", unique: true
+    t.check_constraint "umbral_aviso > 0::numeric AND umbral_aviso <= 100::numeric", name: "umbral_entre_1_y_100"
+    t.check_constraint "unica", name: "solo_una_fila"
+  end
+
+  create_table "destinatarios", force: :cascade do |t|
+    t.boolean "activo", default: true, null: false
+    t.string "correo", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["correo"], name: "index_destinatarios_on_correo", unique: true
+  end
 
   create_table "ingredientes", force: :cascade do |t|
     t.decimal "cantidad", precision: 12, scale: 4, null: false

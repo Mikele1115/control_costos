@@ -5,6 +5,10 @@ Rails.application.routes.draw do
 
   get "margenes", to: "margenes#index"
 
+  # Hay una sola: recurso singular, sin index ni id en la URL.
+  resource :configuracion, only: %i[edit update]
+  resources :destinatarios, only: %i[create update destroy]
+
   resources :proveedores
 
   resources :insumos do

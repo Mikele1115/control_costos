@@ -21,6 +21,12 @@ es:
       precio_insumo:
         one: Precio
         other: Precios
+      configuracion:
+        one: Ajustes
+        other: Ajustes
+      destinatario:
+        one: Destinatario
+        other: Destinatarios
       receta:
         one: Receta
         other: Recetas
@@ -47,6 +53,11 @@ es:
         unidad_compra: Unidad de compra
         costo_por_unidad_base: Costo por unidad base
         vigente_desde: Vigente desde
+      configuracion:
+        avisos_activos: Avisarme por correo
+        umbral_aviso: Avisarme desde un food cost de
+      destinatario:
+        correo: Correo
       receta:
         nombre: Nombre
         tipo: Tipo
