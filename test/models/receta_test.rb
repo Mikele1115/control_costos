@@ -123,4 +123,58 @@ class RecetaTest < ActiveSupport::TestCase
       plato.destroy
     end
   end
+
+  # --- el precio de memoizar el costo -------------------------------
+
+  test "el costo se calcula una sola vez por fecha" do
+    queso = insumo_con_precio(nombre: "Muzzarella", precio: 10_000,
+                              cantidad: 1, unidad: "kg", desde: Date.new(2026, 1, 1))
+    plato = crear_plato(nombre: "Milanesa", precio_venta: 1000)
+    agregar(plato, queso, 30, "g")
+
+    consultas = 0
+    suscriptor = ActiveSupport::Notifications.subscribe("sql.active_record") do |*, datos|
+      consultas += 1 unless %w[SCHEMA TRANSACTION].include?(datos[:name])
+    end
+    3.times { plato.costo_total(fecha: Date.new(2026, 6, 1)) }
+    ActiveSupport::Notifications.unsubscribe(suscriptor)
+
+    assert_operator consultas, :<=, 3, "la segunda y tercera vez no deberian preguntar nada"
+  end
+
+  test "cada fecha se memoriza por separado" do
+    queso = insumo_con_precio(nombre: "Muzzarella", precio: 10_000,
+                              cantidad: 1, unidad: "kg", desde: Date.new(2026, 1, 1))
+    crear_precio(queso, precio: 20_000, cantidad: 1, unidad: "kg", desde: Date.new(2026, 6, 1))
+    plato = crear_plato(nombre: "Milanesa", precio_venta: 1000)
+    agregar(plato, queso, 100, "g")
+
+    enero = plato.costo_total(fecha: Date.new(2026, 3, 1))
+    junio = plato.costo_total(fecha: Date.new(2026, 7, 1))
+
+    assert_equal BigDecimal(1000), enero
+    assert_equal BigDecimal(2000), junio, "memorizar enero no puede contaminar junio"
+  end
+
+  # El precio de memoizar, dicho en voz alta: el objeto conserva su
+  # calculo. Los controladores redirigen despues de escribir, asi que
+  # cada peticion trabaja con recetas recien cargadas.
+  test "el costo memorizado no se entera de un ingrediente nuevo hasta recargar" do
+    queso = insumo_con_precio(nombre: "Muzzarella", precio: 10_000,
+                              cantidad: 1, unidad: "kg", desde: Date.new(2026, 1, 1))
+    plato = crear_plato(nombre: "Milanesa", precio_venta: 1000)
+    agregar(plato, queso, 30, "g")
+
+    fecha    = Date.new(2026, 6, 1)
+    original = plato.costo_total(fecha: fecha)
+
+    carne = insumo_con_precio(nombre: "Carne", precio: 20_000,
+                              cantidad: 1, unidad: "kg", desde: Date.new(2026, 1, 1))
+    agregar(plato, carne, 70, "g")
+
+    assert_equal original, plato.costo_total(fecha: fecha),
+                 "el mismo objeto conserva el calculo que ya hizo"
+    assert_operator plato.reload.costo_total(fecha: fecha), :>, original,
+                    "recargado si ve el ingrediente nuevo"
+  end
 end

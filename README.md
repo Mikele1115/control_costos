@@ -181,6 +181,44 @@ Quien no puede escribir tampoco ve los botones que no podría usar, ni el
 enlace a Ajustes. El servidor rechaza igual —ahí está la seguridad—, pero
 ofrecer un botón que va a rebotar es una mentira en la pantalla.
 
+### Un cálculo memoizado, medido antes y después
+
+Todo el costeo desemboca en `Receta#costo_total`: `food_cost`,
+`margen_bruto`, `precio_sugerido`, `banda_food_cost` y `costeable?` no
+hacen más que preguntarle a él. Sin memoizar, mostrar **una sola** ficha de
+plato recorría el árbol entero de ingredientes seis o siete veces.
+
+Medido con la misma carta de prueba (20 insumos, 3 preparaciones, 6 platos,
+la mitad con sub-recetas):
+
+| Pantalla | Antes | Después |
+|---|---:|---:|
+| Panel | 518 | **83** |
+| Márgenes | 348 | **63** |
+| Recetas | 230 | **80** |
+| Ficha de un plato | 113 | **35** |
+| Insumos | 26 | 26 |
+
+Insumos no cambia, y está bien: esa pantalla no costea recetas.
+
+Dos cosas que salieron de medir en vez de suponer:
+
+- **La mayoría de esas consultas nunca llegaban a PostgreSQL.** Rails cachea
+  por petición: preguntar dos veces lo mismo se responde de memoria. Así
+  que el problema no era la red, era la CPU de volver a construir los
+  objetos una y otra vez. El diagnóstico cambió al ver los números.
+- **Memoizar `Insumo#precio_vigente` no sirvió.** Ahorraba tres consultas en
+  una sola pantalla que ya estaba en ocho. Se revirtió: una optimización
+  que no mueve ningún número es estado de más que puede quedarse viejo.
+
+El precio de memoizar está documentado y probado: el objeto conserva su
+cálculo, así que `reload` tuvo que aprender a olvidarlo. Eso lo descubrió
+un test, no la lectura del código —`reload` recarga atributos y
+asociaciones, pero no sabe nada de las variables de instancia—.
+
+`test/integration/consultas_test.rb` fija un presupuesto por pantalla.
+No vigila el número exacto: avisa si algo vuelve a dispararse.
+
 ### El dominio está en castellano, incluidas las tablas
 
 `Receta`, `Insumo`, `Proveedor`. Rails pluraliza en inglés, así que
@@ -260,10 +298,9 @@ rellenar el registro de imágenes y la IP del servidor.
 
 ## Qué falta
 
-- **Optimizar consultas.** El panel hace 888 consultas (casi todas
-  cacheadas, la página va rápida, pero es mucho). La causa es que
-  `costeable?` calcula el costo completo y después se vuelve a calcular
-  para mostrarlo. Memoizar el costo por receta.
+- **Bajar las consultas reales del panel**, que siguen en 48: una por
+  insumo para buscar su precio vigente. Se podrían traer todas de golpe
+  con una sola consulta y filtrar por fecha en Ruby.
 - **Tests de sistema con Capybara.** El filtrado de unidades con Stimulus
   está probado por sus atributos, no ejecutando el JavaScript.
 - **SMTP real** para los avisos en producción; hoy en desarrollo se

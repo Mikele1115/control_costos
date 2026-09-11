@@ -91,10 +91,31 @@ class Receta < ApplicationRecord
 
   # Un plato ES un plato: esto es lo que cuesta servirlo.
   # Una preparacion: lo que cuesta la tanda entera.
+  # Todo el costeo desemboca aqui: food_cost, margen_bruto,
+  # precio_sugerido, banda_food_cost y costeable? no hacen mas que
+  # preguntarle a este metodo. Sin memoizar, mostrar una sola ficha de
+  # plato recorre el arbol entero de ingredientes seis o siete veces.
+  #
+  # La memoria es POR FECHA, porque la misma receta se costea a varias
+  # en la misma pantalla, y vive lo que vive el objeto: una peticion.
+  # Si cambian los ingredientes hay que recargar la receta.
+  # `reload` recarga atributos y asociaciones, pero no sabe nada de las
+  # variables de instancia: sin esto, una receta recargada seguiria
+  # devolviendo el costo que calculo antes de que le cambiaran los
+  # ingredientes. Lo descubrio un test, no la lectura del codigo.
+  def reload(*)
+    @costos_por_fecha = nil
+    super
+  end
+
   def costo_total(fecha: Date.current)
-    ingredientes.includes(:insumable)
-                .map { |i| i.costo(fecha: fecha) }
-                .sum(BigDecimal(0))
+    @costos_por_fecha ||= {}
+
+    @costos_por_fecha.fetch(fecha) do
+      @costos_por_fecha[fecha] = ingredientes.includes(:insumable)
+                                             .map { |i| i.costo(fecha: fecha) }
+                                             .sum(BigDecimal(0))
+    end
   end
 
   # Solo preparaciones: lo que cuesta 1 g / 1 ml / 1 unidad de esto
