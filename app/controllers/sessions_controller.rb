@@ -1,5 +1,8 @@
 class SessionsController < ApplicationController
   allow_unauthenticated_access only: %i[ new create ]
+  # Entrar y salir queda fuera del sistema de permisos: ocurre antes
+  # de tener rol, y cerrar sesion tiene que poder hacerlo cualquiera.
+  permitir_sin_autorizacion
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_session_path, alert: t("autenticacion.demasiados_intentos") }
 
   def new

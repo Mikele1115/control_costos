@@ -29,9 +29,24 @@
             <%= enlace_nav "Proveedores", proveedores_path %>
             <%= enlace_nav "Recetas", recetas_path %>
             <%= enlace_nav "Márgenes", margenes_path %>
-            <%= enlace_nav "Ajustes", edit_configuracion_path %>
+            <%# Ajustes muestra quien tiene permisos: si no puedes %>
+            <%# entrar, tampoco tiene sentido ver la puerta. %>
+            <% if puede_configurar? %>
+              <%= enlace_nav "Ajustes", edit_configuracion_path %>
+            <% end %>
+            <span class="mx-2 h-5 w-px bg-slate-200"></span>
+
+            <%# Quien esta dentro y hasta donde llega. El correo se %>
+            <%# oculta en pantallas angostas; la insignia nunca. %>
+            <span class="flex items-center gap-2">
+              <span class="hidden max-w-40 truncate text-xs font-normal text-slate-500 md:inline">
+                <%= Current.user.email_address %>
+              </span>
+              <%= insignia_rol(Current.user) %>
+            </span>
+
             <%= button_to t("autenticacion.salir"), session_path, method: :delete,
-                  class: "ml-2 cursor-pointer rounded-md px-3 py-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700" %>
+                  class: "ml-1 cursor-pointer rounded-md px-3 py-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700" %>
           </nav>
         <% end %>
       </div>

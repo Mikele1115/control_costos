@@ -21,15 +21,17 @@
       · costeo al <%= l(@fecha, format: :long) %>
     </p>
   </div>
-  <div class="flex flex-wrap gap-2">
-    <%= button_to "Duplicar", duplicar_receta_path(@receta), method: :post,
-          class: "cursor-pointer rounded-md border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50" %>
-    <%= link_to "Editar", edit_receta_path(@receta),
-          class: "rounded-md border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50" %>
-    <%= button_to "Eliminar", @receta, method: :delete,
-          form: { data: { turbo_confirm: "¿Eliminar #{@receta.nombre}?" } },
-          class: "cursor-pointer rounded-md border border-rose-300 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-50" %>
-  </div>
+  <% if puede_escribir? %>
+    <div class="flex flex-wrap gap-2">
+      <%= button_to "Duplicar", duplicar_receta_path(@receta), method: :post,
+            class: "cursor-pointer rounded-md border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50" %>
+      <%= link_to "Editar", edit_receta_path(@receta),
+            class: "rounded-md border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50" %>
+      <%= button_to "Eliminar", @receta, method: :delete,
+            form: { data: { turbo_confirm: "¿Eliminar #{@receta.nombre}?" } },
+            class: "cursor-pointer rounded-md border border-rose-300 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-50" %>
+    </div>
+  <% end %>
 </div>
 
 <% unless @costeable %>
@@ -134,9 +136,11 @@
             <% end %>
           </td>
           <td class="px-4 py-3 text-right">
-            <%= button_to "Quitar", receta_ingrediente_path(@receta, ing), method: :delete,
-                  form: { data: { turbo_confirm: "¿Quitar #{ing.nombre_insumable}?" } },
-                  class: "cursor-pointer text-xs text-slate-400 hover:text-rose-600 hover:underline" %>
+            <% if puede_escribir? %>
+              <%= button_to "Quitar", receta_ingrediente_path(@receta, ing), method: :delete,
+                    form: { data: { turbo_confirm: "¿Quitar #{ing.nombre_insumable}?" } },
+                    class: "cursor-pointer text-xs text-slate-400 hover:text-rose-600 hover:underline" %>
+            <% end %>
           </td>
         </tr>
       <% end %>
@@ -144,6 +148,7 @@
   </table>
 </div>
 
+<% if puede_escribir? %>
 <div class="mt-6 rounded-lg border border-slate-200 bg-white p-4">
   <h3 class="mb-3 text-sm font-medium text-slate-700">Agregar ingrediente</h3>
 
@@ -177,3 +182,4 @@
     tampoco ofrece preparaciones que generarían un ciclo.
   </p>
 </div>
+<% end %>

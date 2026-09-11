@@ -17,10 +17,13 @@ module Constructores
     end
   end
 
-  def crear_usuario(email: nil, password: "secreto123")
+  # Administrador por defecto: casi todos los tests de integracion
+  # escriben algo, y el rol no es lo que estan probando ahi.
+  def crear_usuario(email: nil, password: "secreto123", rol: "administrador")
     User.create!(
       email_address: email || "usuario#{SecureRandom.hex(4)}@ejemplo.test",
-      password: password
+      password: password,
+      rol: rol
     )
   end
 

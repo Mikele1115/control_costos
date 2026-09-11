@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   # Hay una sola: recurso singular, sin index ni id en la URL.
   resource :configuracion, only: %i[edit update]
   resources :destinatarios, only: %i[create update destroy]
+  resources :users, only: %i[create update destroy]
 
   resources :proveedores
 

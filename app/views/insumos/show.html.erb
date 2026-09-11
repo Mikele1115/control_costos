@@ -9,15 +9,17 @@
       · admite <%= @insumo.unidades_permitidas.join(", ") %>
     </p>
   </div>
-  <div class="flex flex-wrap gap-2">
-    <%= link_to "Cargar precio", new_insumo_precio_insumo_path(@insumo),
-          class: "rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
-    <%= link_to "Editar", edit_insumo_path(@insumo),
-          class: "rounded-md border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50" %>
-    <%= button_to "Eliminar", @insumo, method: :delete,
-          form: { data: { turbo_confirm: "¿Eliminar #{@insumo.nombre}?" } },
-          class: "cursor-pointer rounded-md border border-rose-300 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-50" %>
-  </div>
+  <% if puede_escribir? %>
+    <div class="flex flex-wrap gap-2">
+      <%= link_to "Cargar precio", new_insumo_precio_insumo_path(@insumo),
+            class: "rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
+      <%= link_to "Editar", edit_insumo_path(@insumo),
+            class: "rounded-md border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-slate-50" %>
+      <%= button_to "Eliminar", @insumo, method: :delete,
+            form: { data: { turbo_confirm: "¿Eliminar #{@insumo.nombre}?" } },
+            class: "cursor-pointer rounded-md border border-rose-300 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-50" %>
+    </div>
+  <% end %>
 </div>
 
 <div class="mb-8 grid gap-4 sm:grid-cols-3">
@@ -83,9 +85,13 @@
               <%= moneda(precio.costo_por_unidad_base) %> / <%= @insumo.unidad_base %>
             </td>
             <td class="px-4 py-3 text-right">
-              <%= button_to "Borrar", insumo_precio_insumo_path(@insumo, precio), method: :delete,
-                    form: { data: { turbo_confirm: "¿Borrar el precio del #{l(precio.vigente_desde)}?" } },
-                    class: "cursor-pointer text-xs text-slate-400 hover:text-rose-600 hover:underline" %>
+              <%# Se esconde el boton y no la celda: el th de esta %>
+              <%# columna existe igual y la tabla se desalinearia. %>
+              <% if puede_escribir? %>
+                <%= button_to "Borrar", insumo_precio_insumo_path(@insumo, precio), method: :delete,
+                      form: { data: { turbo_confirm: "¿Borrar el precio del #{l(precio.vigente_desde)}?" } },
+                      class: "cursor-pointer text-xs text-slate-400 hover:text-rose-600 hover:underline" %>
+              <% end %>
             </td>
           </tr>
         <% end %>
@@ -95,6 +101,8 @@
 <% else %>
   <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
     Sin precios cargados: este insumo no se puede costear todavía.
-    <%= link_to "Cargar el primero", new_insumo_precio_insumo_path(@insumo), class: "font-medium underline" %>
+    <% if puede_escribir? %>
+      <%= link_to "Cargar el primero", new_insumo_precio_insumo_path(@insumo), class: "font-medium underline" %>
+    <% end %>
   </div>
 <% end %>

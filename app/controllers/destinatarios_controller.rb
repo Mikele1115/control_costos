@@ -1,4 +1,6 @@
 class DestinatariosController < ApplicationController
+  include PantallaDeAjustes
+  solo_administradores
   before_action :set_destinatario, only: %i[update destroy]
 
   def create
@@ -8,10 +10,7 @@ class DestinatariosController < ApplicationController
       redirect_to edit_configuracion_path,
                   notice: "#{@destinatario.correo} recibirá los avisos."
     else
-      # El formulario vive dentro de la pantalla de ajustes, asi que es
-      # esa la que hay que volver a dibujar con el error.
-      @configuracion  = Configuracion.actual
-      @destinatarios  = Destinatario.ordenados
+      cargar_ajustes
       render "configuraciones/edit", status: :unprocessable_entity
     end
   end

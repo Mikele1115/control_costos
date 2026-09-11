@@ -1,5 +1,7 @@
 class ConfiguracionesController < ApplicationController
-  before_action :set_configuracion
+  include PantallaDeAjustes
+  solo_administradores
+  before_action :cargar_ajustes
 
   def edit
   end
@@ -13,12 +15,6 @@ class ConfiguracionesController < ApplicationController
   end
 
   private
-
-  def set_configuracion
-    @configuracion = Configuracion.actual
-    @destinatarios = Destinatario.ordenados
-    @destinatario  = Destinatario.new
-  end
 
   def mensaje
     return "Ajustes guardados. Los avisos están apagados." unless @configuracion.avisos_activos?

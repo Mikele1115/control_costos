@@ -20,8 +20,10 @@
       <%= f.submit "Aplicar",
             class: "cursor-pointer rounded-md border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50" %>
     <% end %>
-    <%= link_to "Nueva receta", new_receta_path,
-          class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
+    <% if puede_escribir? %>
+      <%= link_to "Nueva receta", new_receta_path,
+            class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700" %>
+    <% end %>
   </div>
 </div>
 

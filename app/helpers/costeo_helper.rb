@@ -54,6 +54,19 @@ module CosteoHelper
   #
   # Los umbrales son de Receta: aca solo se decide el color.
 
+  # El color dice de un vistazo cuanto puede tocar cada cuenta: oscuro
+  # el que manda, azul el que carga datos, gris el que solo mira.
+  COLORES_ROL = {
+    "administrador" => "bg-slate-900 text-white",
+    "digitador"     => "bg-sky-100 text-sky-800",
+    "observador"    => "bg-slate-100 text-slate-500"
+  }.freeze
+
+  def insignia_rol(usuario)
+    content_tag :span, t("usuarios.roles.#{usuario.rol}"),
+      class: "inline-flex rounded-full px-2 py-0.5 text-xs font-semibold #{COLORES_ROL.fetch(usuario.rol)}"
+  end
+
   COLORES_BANDA = {
     perdida: "bg-rose-200 text-rose-900",
     critico: "bg-rose-100 text-rose-800",

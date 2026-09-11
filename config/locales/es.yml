@@ -27,6 +27,9 @@ es:
       destinatario:
         one: Destinatario
         other: Destinatarios
+      user:
+        one: Usuario
+        other: Usuarios
       receta:
         one: Receta
         other: Recetas
@@ -58,6 +61,10 @@ es:
         umbral_aviso: Avisarme desde un food cost de
       destinatario:
         correo: Correo
+      user:
+        email_address: Correo
+        password: Contraseña
+        rol: Rol
       receta:
         nombre: Nombre
         tipo: Tipo
@@ -119,6 +126,16 @@ es:
       asunto:
         one: "Un plato empeoró su food cost"
         other: "%{count} platos empeoraron su food cost"
+  usuarios:
+    roles:
+      administrador: Administrador
+      digitador: Digitador
+      observador: Observador
+    descripciones:
+      administrador: Todo, incluidos estos ajustes
+      digitador: Carga precios, insumos y recetas
+      observador: Solo puede mirar
+
   costeo:
     bandas:
       bajo: bajo
