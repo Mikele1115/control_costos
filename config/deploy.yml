@@ -7,7 +7,7 @@ service: control_costos
 # <<< 1 >>> tu usuario del registro de imagenes
 #   Docker Hub:  miusuario/control_costos
 #   GitHub:      ghcr.io/miusuario/control_costos
-image: USUARIO_REGISTRO/control_costos
+image: ghcr.io/mikele1115/control_costos
 
 servers:
   web:
@@ -31,7 +31,7 @@ proxy:
 registry:
   # Para Docker Hub, borra la linea `server`.
   server: ghcr.io
-  username: USUARIO_REGISTRO
+  username: mikele1115
   password:
     - KAMAL_REGISTRY_PASSWORD
 
