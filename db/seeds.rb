@@ -10,7 +10,10 @@ USUARIO_DEMO = "demo@lasplendida.cl"
 CLAVE_DEMO   = "demo1234"
 
 puts "Cargando usuario de demostracion..."
-User.find_or_initialize_by(email_address: USUARIO_DEMO).update!(password: CLAVE_DEMO)
+# Observador a proposito: la cuenta demo es publica (sale en el login),
+# asi que puede mirar todo y no tocar nada. Las cuentas con permiso se
+# crean desde Ajustes, nunca desde aca: sus contrasenas no van al repo.
+User.find_or_initialize_by(email_address: USUARIO_DEMO).update!(password: CLAVE_DEMO, rol: "observador")
 
 ENERO = Date.new(2026, 1, 15)
 JUNIO = Date.new(2026, 6, 1)
