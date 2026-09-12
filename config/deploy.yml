@@ -5,8 +5,8 @@ service: control_costos
 
 # <<< 1 >>> tu usuario del registro de imagenes
 #   Docker Hub:  miusuario/control_costos
-#   GitHub:      ghcr.io/miusuario/control_costos
-image: ghcr.io/mikele1115/control_costos
+#   GitHub:      miusuario/control_costos  (sin ghcr.io: lo antepone `registry.server`)
+image: mikele1115/control_costos
 
 servers:
   web:
@@ -59,7 +59,9 @@ aliases:
   shell: app exec --interactive --reuse "bash"
   logs: app logs -f
   dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
-  sembrar: app exec "PERMITIR_SEED=1 bin/rails db:seed"
+  # `env` porque el contenedor ejecuta sin shell: una asignacion suelta
+  # (X=1 comando) no la entiende nadie ahi dentro.
+  sembrar: app exec "env PERMITIR_SEED=1 bin/rails db:seed"
 
 accessories:
   db:
