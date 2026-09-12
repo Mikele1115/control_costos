@@ -69,4 +69,4 @@ end
 
 gem "rails-i18n", "~> 8.1"
 
-gem "json", "~> 2.9"
+gem "json", "~> 3.0"
