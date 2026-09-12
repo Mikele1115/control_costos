@@ -1,6 +1,5 @@
 # Kamal 2 — despliegue de Control de Costos La Splendida
 #
-# RELLENÁ LOS TRES MARCADORES EN MAYUSCULAS Y BORRÁ ESTA NOTA.
 # Los pasos completos estan en DESPLIEGUE.md
 service: control_costos
 
@@ -12,19 +11,15 @@ image: ghcr.io/mikele1115/control_costos
 servers:
   web:
     # <<< 2 >>> la IP de tu VPS
-    - IP_DEL_VPS
+    - 52.23.104.52
 
 proxy:
-  # <<< 3 >>> tu dominio, apuntando por DNS a la IP de arriba.
-  # Kamal saca el certificado de Let's Encrypt solo.
-  #
-  # ¿Sin dominio todavia? Comenta las dos lineas de abajo y pone
-  # `ssl: false`. Entraras por http://IP_DEL_VPS, sin candado.
-  ssl: true
-  host: MI-DOMINIO.COM
+  # Sin dominio todavia: se entra por http://52.23.104.52, sin candado.
+  # Cuando el DNS apunte a esta IP, poner `ssl: true` y descomentar
+  # `host`: Kamal pide el certificado a Let's Encrypt solo.
+  ssl: false
+  # host: controlcostossplendida.cl
 
-  # /up no exige sesion: Rails::HealthController no pasa por
-  # ApplicationController. Kamal puede comprobar la salud del contenedor.
   healthcheck:
     path: /up
 
@@ -70,7 +65,7 @@ accessories:
   db:
     image: postgres:17
     # <<< 2 >>> la misma IP del VPS
-    host: IP_DEL_VPS
+    host: 52.23.104.52
 
     # Atado a 127.0.0.1: PostgreSQL NO queda expuesto a internet.
     port: "127.0.0.1:5432:5432"
