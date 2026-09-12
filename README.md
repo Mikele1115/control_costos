@@ -3,6 +3,9 @@
 Cuánto cuesta realmente cada plato de la carta, y qué pasa con ese número
 cuando sube el precio de un insumo.
 
+**En vivo:** [enmipccorre.dev](https://enmipccorre.dev) — entra con
+`demo@lasplendida.cl` / `demo1234` (cuenta de solo lectura).
+
 Un restaurante sabe lo que cobra por una lasaña, pero rara vez sabe lo que
 le cuesta: hay que sumar el queso, la carne, la salsa —que a su vez es otra
 receta con sus propios insumos—, descontar la merma, y todo eso cambia cada
@@ -291,10 +294,14 @@ Receta 1──* Ingrediente
 
 ## Despliegue
 
-Preparado con Kamal 2 sobre un VPS propio: `config/deploy.yml` levanta la
-aplicación más un accesorio PostgreSQL 17, y `db/produccion/init.sql` crea
-las tres bases extra que Rails 8 usa para cola, caché y cable. Faltan por
-rellenar el registro de imágenes y la IP del servidor.
+En producción en [enmipccorre.dev](https://enmipccorre.dev), con **Kamal 2**
+sobre un VPS de AWS Lightsail (2 GB): la aplicación y PostgreSQL 17 en
+contenedores, imágenes en GitHub Container Registry, y el certificado de
+Let's Encrypt lo pide y renueva kamal-proxy solo. `db/produccion/init.sql`
+crea las tres bases extra que Rails 8 usa para cola, caché y cable.
+
+La cuenta pública es observadora a propósito: cualquiera puede mirar,
+nadie puede romper la demo.
 
 ## Qué falta
 
