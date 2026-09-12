@@ -14,11 +14,12 @@ servers:
     - 52.23.104.52
 
 proxy:
-  # Sin dominio todavia: se entra por http://52.23.104.52, sin candado.
-  # Cuando el DNS apunte a esta IP, poner `ssl: true` y descomentar
-  # `host`: Kamal pide el certificado a Let's Encrypt solo.
-  ssl: false
-  # host: controlcostossplendida.cl
+  # Kamal pide a Let's Encrypt un certificado por cada host y lo renueva
+  # solo. Los registros A de los dos nombres apuntan a esta IP con la
+  # nube de Cloudflare en gris (solo DNS): con la naranja, Cloudflare se
+  # mete entre Let's Encrypt y el servidor.
+  ssl: true
+  host: enmipccorre.dev,www.enmipccorre.dev
 
   healthcheck:
     path: /up
