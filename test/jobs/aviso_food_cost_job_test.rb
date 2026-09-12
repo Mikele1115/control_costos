@@ -21,7 +21,7 @@ class AvisoFoodCostJobTest < ActiveJob::TestCase
     assert_emails 1 do
       AvisoFoodCostJob.perform_now(subir_a(14_000))   # 30 % -> 42 %
     end
-    assert_equal ["chef@lasplendida.cl", "duenio@lasplendida.cl"],
+    assert_equal [ "chef@lasplendida.cl", "duenio@lasplendida.cl" ],
                  ActionMailer::Base.deliveries.last.to
   end
 

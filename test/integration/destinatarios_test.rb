@@ -4,7 +4,7 @@ class DestinatariosTest < ActionDispatch::IntegrationTest
   test "agregar un correo a la lista" do
     post destinatarios_path, params: { destinatario: { correo: "  CHEF@LaSplendida.CL " } }
 
-    assert_equal ["chef@lasplendida.cl"], Destinatario.correos_activos
+    assert_equal [ "chef@lasplendida.cl" ], Destinatario.correos_activos
     assert_redirected_to edit_configuracion_path
   end
 
@@ -44,7 +44,7 @@ class DestinatariosTest < ActionDispatch::IntegrationTest
     patch destinatario_path(destinatario)
 
     assert destinatario.reload.activo?
-    assert_equal ["chef@lasplendida.cl"], Destinatario.correos_activos
+    assert_equal [ "chef@lasplendida.cl" ], Destinatario.correos_activos
   end
 
   test "quitar lo borra de verdad" do

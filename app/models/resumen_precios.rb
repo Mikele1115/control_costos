@@ -34,7 +34,7 @@ class ResumenPrecios
   def bajo?    = variacion&.negative? || false
   def estable? = !vacio? && !unico? && variacion&.zero? || false
 
-  def cambios = [precios.size - 1, 0].max
+  def cambios = [ precios.size - 1, 0 ].max
 
   # Meses de calendario cubiertos, del primer precio a hoy.
   def meses

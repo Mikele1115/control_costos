@@ -37,6 +37,6 @@ class DestinatariosController < ApplicationController
   end
 
   def destinatario_params
-    params.expect(destinatario: [:correo])
+    params.expect(destinatario: [ :correo ])
   end
 end

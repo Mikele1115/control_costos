@@ -8,7 +8,7 @@ class Ingrediente < ApplicationRecord
   validates :unidad,   presence: true
   validates :insumable_type, inclusion: { in: TIPOS_INSUMABLE }
   validates :insumable_id, uniqueness: {
-    scope: [:receta_id, :insumable_type],
+    scope: [ :receta_id, :insumable_type ],
     message: "ya esta en esta receta"
   }
 

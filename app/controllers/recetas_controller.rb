@@ -73,18 +73,18 @@ class RecetasController < ApplicationController
   # el navegador ya no necesita preguntar nada.
   def opciones_insumables
     insumos = Insumo.order(:nombre).map do |insumo|
-      [insumo.nombre, "Insumo:#{insumo.id}",
-       { data: { unidades: unidades_json(insumo) } }]
+      [ insumo.nombre, "Insumo:#{insumo.id}",
+       { data: { unidades: unidades_json(insumo) } } ]
     end
 
     preparaciones = Receta.preparaciones.order(:nombre)
                           .reject { |prep| prep == @receta || prep.depende_de?(@receta) }
                           .map do |prep|
-      [prep.nombre, "Receta:#{prep.id}",
-       { data: { unidades: unidades_json(prep) } }]
+      [ prep.nombre, "Receta:#{prep.id}",
+       { data: { unidades: unidades_json(prep) } } ]
     end
 
-    [["Insumos", insumos], ["Preparaciones", preparaciones]]
+    [ [ "Insumos", insumos ], [ "Preparaciones", preparaciones ] ]
   end
 
   # {"g":"gramos","kg":"kilogramos"} — valor y etiqueta ya traducida,

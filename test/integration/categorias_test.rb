@@ -70,7 +70,7 @@ class CategoriasTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     titulos = response.body.scan(/Platos principales|Para compartir|Postres|Bebestibles|Sin clasificar/)
-    assert_equal ["Platos principales", "Para compartir", "Postres", "Bebestibles", "Sin clasificar"],
+    assert_equal [ "Platos principales", "Para compartir", "Postres", "Bebestibles", "Sin clasificar" ],
                  titulos.uniq
   end
 

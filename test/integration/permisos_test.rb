@@ -21,7 +21,7 @@ class PermisosTest < ActionDispatch::IntegrationTest
   test "el observador puede mirar todas las pantallas de consulta" do
     entrar_como("observador")
 
-    [root_path, insumos_path, recetas_path, margenes_path, proveedores_path].each do |pantalla|
+    [ root_path, insumos_path, recetas_path, margenes_path, proveedores_path ].each do |pantalla|
       get pantalla
       assert_response :success, "deberia poder ver #{pantalla}"
     end

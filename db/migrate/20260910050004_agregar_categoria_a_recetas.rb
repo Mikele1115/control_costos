@@ -10,6 +10,6 @@ class AgregarCategoriaARecetas < ActiveRecord::Migration[8.1]
           AND categoria IN ('principal', 'compartir', 'postre', 'bebestible'))
     SQL
 
-    add_index :recetas, [:categoria, :nombre]
+    add_index :recetas, [ :categoria, :nombre ]
   end
 end

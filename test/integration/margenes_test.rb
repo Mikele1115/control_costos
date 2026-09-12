@@ -22,7 +22,7 @@ class MargenesTest < ActionDispatch::IntegrationTest
   def orden_en_pagina
     tabla = response.body.split("Detalle").last
     %w[Caro Eficiente Flojo]
-      .map { |n| [tabla.index("Plato #{n}"), n] }
+      .map { |n| [ tabla.index("Plato #{n}"), n ] }
       .sort_by(&:first)
       .map(&:last)
   end

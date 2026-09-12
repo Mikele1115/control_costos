@@ -58,7 +58,7 @@ class PanelAlertasTest < ActionDispatch::IntegrationTest
     plato_con(nombre: "Plato Perdido", gramos: 100, precio_venta: 500)  # 200 %
 
     get root_path
-    orden = %w[Perdido Critico Alto].map { |n| [aviso.index("Plato #{n}"), n] }
+    orden = %w[Perdido Critico Alto].map { |n| [ aviso.index("Plato #{n}"), n ] }
     assert_equal %w[Perdido Critico Alto], orden.sort_by(&:first).map(&:last)
   end
 

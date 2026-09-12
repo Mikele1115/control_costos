@@ -15,7 +15,7 @@ class CreateIngredientes < ActiveRecord::Migration[8.1]
 
     # Un mismo ingrediente no puede repetirse dentro de una receta
     add_index :ingredientes,
-      [:receta_id, :insumable_type, :insumable_id],
+      [ :receta_id, :insumable_type, :insumable_id ],
       unique: true, name: "index_ingredientes_unicos"
 
     add_check_constraint :ingredientes,

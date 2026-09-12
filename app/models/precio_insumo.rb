@@ -10,7 +10,7 @@ class PrecioInsumo < ApplicationRecord
     message: "ya tiene un precio cargado para esa fecha"
   }
 
-  validate  :unidad_compra_debe_ser_compatible
+  validate :unidad_compra_debe_ser_compatible
   before_validation :calcular_costo_por_unidad_base
 
   # Precios que ya estaban vigentes en una fecha, del mas nuevo al mas viejo

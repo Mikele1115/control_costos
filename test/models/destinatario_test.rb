@@ -15,7 +15,7 @@ class DestinatarioTest < ActiveSupport::TestCase
     destinatario = Destinatario.new(correo: "   ")
 
     assert_not destinatario.valid?
-    assert_equal ["no puede quedar vacío"], destinatario.errors[:correo],
+    assert_equal [ "no puede quedar vacío" ], destinatario.errors[:correo],
                  "un campo en blanco no deberia quejarse ademas del formato"
   end
 
@@ -49,14 +49,14 @@ class DestinatarioTest < ActiveSupport::TestCase
     Destinatario.create!(correo: "ana@lasplendida.cl")
     Destinatario.create!(correo: "fuera@lasplendida.cl", activo: false)
 
-    assert_equal ["ana@lasplendida.cl", "zulema@lasplendida.cl"], Destinatario.correos_activos
+    assert_equal [ "ana@lasplendida.cl", "zulema@lasplendida.cl" ], Destinatario.correos_activos
   end
 
   test "ordenados pone primero a los activos" do
     Destinatario.create!(correo: "fuera@lasplendida.cl", activo: false)
     Destinatario.create!(correo: "zulema@lasplendida.cl")
 
-    assert_equal ["zulema@lasplendida.cl", "fuera@lasplendida.cl"],
+    assert_equal [ "zulema@lasplendida.cl", "fuera@lasplendida.cl" ],
                  Destinatario.ordenados.map(&:correo)
   end
 end

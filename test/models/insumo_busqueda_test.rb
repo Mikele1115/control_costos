@@ -18,23 +18,23 @@ class InsumoBusquedaTest < ActiveSupport::TestCase
   def nombres(termino) = Insumo.buscar(termino).order(:nombre).pluck(:nombre)
 
   test "busca por nombre" do
-    assert_equal ["Leche entera"], nombres("leche")
+    assert_equal [ "Leche entera" ], nombres("leche")
   end
 
   test "ignora mayusculas" do
-    assert_equal ["Leche entera"], nombres("LECHE")
-    assert_equal ["Leche entera"], nombres("LeChE")
+    assert_equal [ "Leche entera" ], nombres("LECHE")
+    assert_equal [ "Leche entera" ], nombres("LeChE")
   end
 
   test "ignora acentos en los dos sentidos" do
-    assert_equal ["Azúcar impalpable"], nombres("azucar")
-    assert_equal ["Azúcar impalpable"], nombres("Azúcar")
-    assert_equal ["Limón sutil"],       nombres("limon")
+    assert_equal [ "Azúcar impalpable" ], nombres("azucar")
+    assert_equal [ "Azúcar impalpable" ], nombres("Azúcar")
+    assert_equal [ "Limón sutil" ],       nombres("limon")
   end
 
   test "busca tambien por el nombre del proveedor" do
-    assert_equal ["Leche entera"], nombres("lacteos")
-    assert_equal ["Cebolla", "Limón sutil"], nombres("verduleria")
+    assert_equal [ "Leche entera" ], nombres("lacteos")
+    assert_equal [ "Cebolla", "Limón sutil" ], nombres("verduleria")
   end
 
   test "coincide en cualquier parte de la palabra" do
@@ -74,6 +74,6 @@ class InsumoBusquedaTest < ActiveSupport::TestCase
 
   test "se puede encadenar con otros alcances" do
     resultado = Insumo.buscar("verduleria").order(:nombre).limit(1)
-    assert_equal ["Cebolla"], resultado.pluck(:nombre)
+    assert_equal [ "Cebolla" ], resultado.pluck(:nombre)
   end
 end

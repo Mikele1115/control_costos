@@ -34,7 +34,7 @@ class AvisosMailerTest < ActionMailer::TestCase
 
     correo = AvisosMailer.food_cost_alto(configuracion, subir_a(14_000))
 
-    assert_equal ["chef@lasplendida.cl", "duenio@lasplendida.cl"], correo.to
+    assert_equal [ "chef@lasplendida.cl", "duenio@lasplendida.cl" ], correo.to
   end
 
   test "deja fuera a los desactivados" do
@@ -43,7 +43,7 @@ class AvisosMailerTest < ActionMailer::TestCase
 
     correo = AvisosMailer.food_cost_alto(configuracion, subir_a(14_000))
 
-    assert_equal ["duenio@lasplendida.cl"], correo.to
+    assert_equal [ "duenio@lasplendida.cl" ], correo.to
   end
 
   test "cuenta que paso, a quien y cuanto deberia costar" do
@@ -74,6 +74,6 @@ class AvisosMailerTest < ActionMailer::TestCase
   test "respeta el umbral elegido: con 50 avisa cuando lo cruza" do
     correo = AvisosMailer.food_cost_alto(configurar_avisos(umbral: 50), subir_a(18_000))
 
-    assert_equal ["cocina@lasplendida.cl"], correo.to, "54 % cruza el 50 %"
+    assert_equal [ "cocina@lasplendida.cl" ], correo.to, "54 % cruza el 50 %"
   end
 end

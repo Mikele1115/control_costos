@@ -22,7 +22,7 @@ class GraficoPrecios
 
     @desde  = @precios.first.vigente_desde
     # Si hay un precio con fecha futura, el grafico llega hasta el.
-    @hasta  = [hasta, @precios.last.vigente_desde].max
+    @hasta  = [ hasta, @precios.last.vigente_desde ].max
     valores = @precios.map(&:costo_por_unidad_base)
     @minimo = valores.min
     @maximo = valores.max
@@ -46,7 +46,7 @@ class GraficoPrecios
   def ruta
     return "" if vacio?
 
-    trazos = ["M #{puntos.first[:x]} #{puntos.first[:y]}"]
+    trazos = [ "M #{puntos.first[:x]} #{puntos.first[:y]}" ]
     puntos.drop(1).each do |punto|
       trazos << "H #{punto[:x]}"   # llega al cambio con el precio viejo
       trazos << "V #{punto[:y]}"   # y salta al nuevo
@@ -58,10 +58,10 @@ class GraficoPrecios
   # Lineas horizontales de referencia con su valor.
   def lineas_guia
     return [] if vacio?
-    return [[minimo, y_de(minimo)]] if plano?
+    return [ [ minimo, y_de(minimo) ] ] if plano?
 
     medio = (minimo + maximo) / 2
-    [[maximo, y_de(maximo)], [medio, y_de(medio)], [minimo, y_de(minimo)]]
+    [ [ maximo, y_de(maximo) ], [ medio, y_de(medio) ], [ minimo, y_de(minimo) ] ]
   end
 
   # Cuanto subio o bajo desde el primer precio, en porcentaje.

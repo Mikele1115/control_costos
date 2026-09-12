@@ -7,12 +7,12 @@ class Unidad
 
   # unidad => [unidad base a la que pertenece, cuantas equivale 1]
   EQUIVALENCIAS = {
-    "g"      => ["g",      1],
-    "kg"     => ["g",      1000],
-    "ml"     => ["ml",     1],
-    "l"      => ["ml",     1000],
-    "unidad" => ["unidad", 1],
-    "docena" => ["unidad", 12]
+    "g"      => [ "g",      1 ],
+    "kg"     => [ "g",      1000 ],
+    "ml"     => [ "ml",     1 ],
+    "l"      => [ "ml",     1000 ],
+    "unidad" => [ "unidad", 1 ],
+    "docena" => [ "unidad", 12 ]
   }.freeze
 
   def self.todas

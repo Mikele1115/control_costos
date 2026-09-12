@@ -107,7 +107,7 @@ class ResumenPreciosTest < ActiveSupport::TestCase
     tarde  = precio(2_300, Date.new(2026, 6, 1))
     pronto = precio(1_800, Date.new(2026, 1, 15))
 
-    r = ResumenPrecios.new(@insumo, [tarde, pronto], hasta: Date.new(2026, 9, 10))
+    r = ResumenPrecios.new(@insumo, [ tarde, pronto ], hasta: Date.new(2026, 9, 10))
     assert_equal pronto, r.primero
     assert_equal tarde,  r.ultimo
     assert r.subio?

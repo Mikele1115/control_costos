@@ -39,9 +39,9 @@ module CosteoHelper
     return t("costeo.resumen.unico", insumo: resumen.insumo.nombre, fecha: fecha) if resumen.unico?
 
     clave = if resumen.subio? then "aumento"
-            elsif resumen.bajo? then "baja"
-            else "estable"
-            end
+    elsif resumen.bajo? then "baja"
+    else "estable"
+    end
 
     t("costeo.resumen.#{clave}",
       insumo:    resumen.insumo.nombre,

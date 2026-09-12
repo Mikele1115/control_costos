@@ -56,7 +56,7 @@ class InsumosController < ApplicationController
 
     grupos = con_proveedor.group_by(&:proveedor)
                           .sort_by { |proveedor, _| proveedor.nombre }
-    grupos << [nil, sin_proveedor] if sin_proveedor.any?
+    grupos << [ nil, sin_proveedor ] if sin_proveedor.any?
     grupos
   end
 

@@ -12,7 +12,7 @@ class CreatePrecioInsumos < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :precio_insumos, [:insumo_id, :vigente_desde], unique: true
+    add_index :precio_insumos, [ :insumo_id, :vigente_desde ], unique: true
 
     add_check_constraint :precio_insumos, "precio_compra >= 0",
       name: "precio_no_negativo"

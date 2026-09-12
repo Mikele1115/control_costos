@@ -17,7 +17,7 @@ class UsersController < ApplicationController
   end
 
   def update
-    if @user.update(rol: params.expect(user: [:rol])[:rol])
+    if @user.update(rol: params.expect(user: [ :rol ])[:rol])
       redirect_to edit_configuracion_path,
                   notice: "#{@user.email_address} ahora es #{@user.rol}."
     else

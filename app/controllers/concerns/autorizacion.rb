@@ -58,6 +58,6 @@ module Autorizacion
       # 303 tras un POST/PATCH/DELETE: es lo que Turbo espera para
       # seguir la redireccion en vez de reenviar el formulario.
       redirect_back fallback_location: root_path, alert: motivo,
-                    status: request.get? ? :found : :see_other
+                    status: (request.get? || request.head?) ? :found : :see_other
     end
 end

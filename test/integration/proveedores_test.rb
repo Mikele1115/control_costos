@@ -6,7 +6,7 @@ class ProveedoresTest < ActionDispatch::IntegrationTest
                                 telefono: "2 2345 6789")
     @crema  = crear_insumo(nombre: "Crema de leche")
     @leche  = crear_insumo(nombre: "Leche condensada")
-    [@crema, @leche].each { |i| i.update!(proveedor: @nestle) }
+    [ @crema, @leche ].each { |i| i.update!(proveedor: @nestle) }
   end
 
   # --- Modelo -------------------------------------------------------
@@ -18,7 +18,7 @@ class ProveedoresTest < ActionDispatch::IntegrationTest
 
   test "un proveedor tiene varios insumos" do
     assert_equal 2, @nestle.cantidad_insumos
-    assert_equal ["Crema de leche", "Leche condensada"],
+    assert_equal [ "Crema de leche", "Leche condensada" ],
                  @nestle.insumos.order(:nombre).pluck(:nombre)
   end
 
@@ -107,7 +107,7 @@ class ProveedoresTest < ActionDispatch::IntegrationTest
 
     get insumos_path
     assert_response :success
-    orden = %w[Alfa Nestlé Zeta].map { |n| [response.body.index(n), n] }
+    orden = %w[Alfa Nestlé Zeta].map { |n| [ response.body.index(n), n ] }
     assert_equal %w[Alfa Nestlé Zeta], orden.sort_by(&:first).map(&:last)
   end
 

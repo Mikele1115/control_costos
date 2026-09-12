@@ -19,9 +19,9 @@ class PanelController < ApplicationController
   # Se agrupa en Ruby y no con SQL porque los platos ya estan cargados
   # con sus ingredientes: volver a la base seria trabajo de mas.
   def agrupar_por_categoria(platos)
-    (Receta::CATEGORIAS + [nil]).filter_map do |categoria|
+    (Receta::CATEGORIAS + [ nil ]).filter_map do |categoria|
       del_grupo = platos.select { |plato| plato.categoria == categoria }
-      [categoria, del_grupo] if del_grupo.any?
+      [ categoria, del_grupo ] if del_grupo.any?
     end
   end
 

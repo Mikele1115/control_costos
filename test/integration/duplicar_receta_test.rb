@@ -27,8 +27,8 @@ class DuplicarRecetaTest < ActionDispatch::IntegrationTest
     copia = Receta.find_by!(nombre: "Milanesa (copia)")
 
     assert_equal 2, copia.ingredientes.count
-    originales = @plato.ingredientes.map { |i| [i.insumable, i.cantidad, i.unidad] }
-    copiados   = copia.ingredientes.map  { |i| [i.insumable, i.cantidad, i.unidad] }
+    originales = @plato.ingredientes.map { |i| [ i.insumable, i.cantidad, i.unidad ] }
+    copiados   = copia.ingredientes.map  { |i| [ i.insumable, i.cantidad, i.unidad ] }
     assert_equal originales.sort_by { |o| o.first.id }, copiados.sort_by { |c| c.first.id }
   end
 
