@@ -19,7 +19,9 @@ proxy:
   # nube de Cloudflare en gris (solo DNS): con la naranja, Cloudflare se
   # mete entre Let's Encrypt y el servidor.
   ssl: true
-  host: enmipccorre.dev,www.enmipccorre.dev
+  # La raiz del dominio es el portfolio (GitHub Pages); la app cuelga
+  # de un subdominio.
+  host: costos.enmipccorre.dev
 
   healthcheck:
     path: /up
